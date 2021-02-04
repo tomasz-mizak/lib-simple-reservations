@@ -1,0 +1,76 @@
+
+* {
+    box-sizing: border-box;
+    font-family: 'Raleway', sans-serif;
+}
+
+:root {
+    font-size: 14px;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-flow: column wrap;
+}
+
+header {
+    height: 150px;
+    padding: 42px;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-flow: column wrap;
+
+    background: whitesmoke;
+}
+
+header * {
+    margin: 0;
+    padding: 0;
+}
+
+section {
+    padding: 62px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column wrap;
+}
+
+section div {
+    margin-bottom: 42px;
+}
+
+.message_box {
+    width: 600px;
+}
+
+footer {
+    height: 200px;
+    padding: 42px;
+    font-size: 1.2em;
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    background: black;
+    color: whitesmoke;
+}
+
+footer ul, li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+footer ul {
+    margin-left: 60px;
+}

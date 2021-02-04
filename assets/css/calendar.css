@@ -1,0 +1,105 @@
+
+.calendar {
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+/* Calendar view */
+
+.calendar_view {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-flow: column wrap;
+    padding: 16px;
+    width: 500px;
+
+    background: white;
+    border: 1px solid rgba(0,0,0,.1);
+}
+
+.calendar_view .header {
+    background: black;
+    color: white;
+}
+
+.calendar_view button {
+    border-radius: 0;
+    border: 0;
+}
+
+.calendar_view .table_wrapper {
+    height: 324px;
+    margin: 0;
+    padding: 0;
+}
+
+.calendar_view .calendar_view_options {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-end;
+    width: 380px;
+    margin-top: 12px;
+}
+
+.calendar_view .calendar_view_options button {
+    width: 100px;
+    height: 40px;
+    margin: 5px;
+}
+
+.calendar_view .calendar_view_options button:hover {
+    background: black;
+    color: white;
+}
+
+/* Calendar details */
+
+.calendar_details {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-flow: column wrap;
+    padding: 16px;
+    width: 500px;
+
+    border: 1px solid whitesmoke;
+    background: white;
+    border: 1px solid rgba(0,0,0,.1);
+    transform: translateX(-1px);
+}
+
+th,tr,button {
+    width: 50px;
+    height: 50px;
+}
+
+.calendar_details .deadline {
+    background: whitesmoke;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column wrap;
+}
+
+.calendar_details .deadline button {
+    border: 0;
+    width: 150px;
+    height: 25px;
+}
+
+.calendar_details .deadline button:hover {
+    background: black;
+    color: whitesmoke;
+}
+
+.calendar_details .deadline {
+    margin-bottom: 10px;
+    padding: 12px;
+}
+
+.deadline_info {
+    margin-bottom: 7px;
+}

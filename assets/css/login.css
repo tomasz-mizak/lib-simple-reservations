@@ -1,0 +1,35 @@
+
+.login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column wrap;
+}
+
+.login form div {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 4px;
+}
+
+.login form div input {
+    margin-left: 8px;
+    border: 1px solid rgba(0,0,0,.1);
+}
+
+.login form input[type="submit"] {
+    border: 0;
+    background: whitesmoke;
+    float: right;
+}
+
+.login form input[type="submit"]:hover {
+    background: black;
+    color: white;
+}
+
+.login form .errorLabel {
+    float: right;
+    color: red;
+}

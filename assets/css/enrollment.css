@@ -1,0 +1,11 @@
+
+.enrollment {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.enrollment form input {
+    background: whitesmoke;
+}
