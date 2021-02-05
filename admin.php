@@ -27,7 +27,7 @@
     <section>
         <div class="message_box">
             Witaj <?= $_SESSION['first_name'] ?>, w tym panelu, możesz dodać nowe terminy do kalendarza.<br>
-            Możesz również ustanowić ile terminów dziennie, może zarezerwować student.<br>Weryfikacja osób, odbywa się za pomocą podania numeru indeksu, oraz wysyłanego kodu na adres email, owy kod student musi wpisać podczas rezerwacji terminu.
+            <br><br>
         </div>
         <div class="calendar">
             <div class="calendar_view">
@@ -45,19 +45,22 @@
                                 <th>niedz</th>
                             </tr>
                         </thead>
-                        <tbody id="calendar_days">
-
-                        </tbody>
+                        <tbody id="calendar_days"></tbody>
                     </table>
                 </div>
                 <div class="calendar_view_options">
                     <button onclick="previousMonth()">Poprzedni miesiąc</button>
                     <button onclick="nextMonth()">Następny miesiąc</button>
-                    <button>Dodaj termin</button>
                 </div>
             </div>
             <div class="calendar_details">
-                <h4>Planowane terminy rezerwacji na dzień 01.01.2021 (poniedziałek):</h4>
+                <div class="calendar_display_options">
+                    <h3 id="selectedDay"></h3>
+                    <div>
+                        <button onclick="">Dodaj termin</button>
+                        <button onclick="displayCalendarView()">Wróć</button>
+                    </div>
+                </div>
                 <ul>
                     <li>
                         <div class="deadline">
@@ -139,7 +142,24 @@
             <li>tomasz.mizak@wpia.uni.lodz.pl</li>
         </ul>
     </footer>
+    <?php
+        require_once "php/dbconn.php";
+        $sql = "SELECT * FROM deadlines";
+        $deadlines = [];
+        if($result = $link->query($sql)) {
+            while($row = $result->fetch_assoc()) {
+                array_push($deadlines, [ 'id' => $row['id'], 'date' => $row['date'] ]);
+            }
+        }
+        $link->close();
+    ?>
     <script>
+
+        const loadedDeadlines = <?php echo json_encode($deadlines); ?>;
+
+        loadedDeadlines.forEach((v,i) => {
+            loadedDeadlines[i].date = new Date(v.date);
+        })
 
         const capitalize = (s) => {
             if (typeof s !== 'string') return ''
@@ -161,6 +181,19 @@
 
         let currentMonth = date.getMonth()+1
         let currentYear = date.getFullYear()
+        let selDay = 1
+
+        const displayCalendarView = () => {
+            $('.calendar_view').css({"display":"flex"});
+            $('.calendar_details').css({"display":"none"});
+        }
+
+        const displayDayDescription = (day, weekday) => {
+            selDay = day;
+            $('.calendar_view').css({"display":"none"});
+            $('.calendar_details').css({"display":"flex"});
+            $('#selectedDay').html(`${weekDayNames[weekday-1]} - ${selDay}.${currentMonth}.${currentYear}`);
+        }
 
         const loadDays = () => {
             $('#calendar_days').html('');
@@ -168,8 +201,23 @@
             for(let i = 1; i<=weeks; i++) {
                 let row = '<tr>';
                 for(let k = 1; k<=7; k++) {
-                    if(k+((i-1)*7)>daysInMonth(currentMonth, currentYear)) break;
-                    row+=`<th><button>${k+((i-1)*7)}</button></th>`
+                    let day = k+((i-1)*7);
+                    if(day>daysInMonth(currentMonth, currentYear)) break;
+                    let is_tagged = false;
+                    for(let f = 1; f<=loadedDeadlines.length; f++) {
+                        const v = loadedDeadlines[f-1];
+                        if(currentYear!=v.date.getFullYear()) break;
+                        if(currentMonth!=v.date.getMonth()+1) break;
+                        if(day == v.date.getDay()) {
+                            is_tagged = true;
+                            break;
+                        };
+                    }
+                    if(is_tagged) {
+                        row+=`<th><button class="tagged" onclick="displayDayDescription(${day}, ${k})">${day}</button></th>`
+                    } else {
+                        row+=`<th><button onclick="displayDayDescription(${day}, ${k})">${day}</button></th>`
+                    }
                 }
                 row+='</tr>'
                 $('#calendar_days').append(row);
