@@ -57,65 +57,12 @@
                 <div class="calendar_display_options">
                     <h3 id="selectedDay"></h3>
                     <div>
-                        <button onclick="">Dodaj termin</button>
+                        <button onclick="showTermCreation()">Dodaj termin</button>
                         <button onclick="displayCalendarView()">Wróć</button>
                     </div>
                 </div>
                 <ul>
-                    <li>
-                        <div class="deadline">
-                            <div class="deadline_info">16:00 - 17:00 (wolny)</div>
-                            <div class="deadline_options">
-                                <button>Wyrezerwuj termin</button>
-                                <button>Usuń termin</button>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="deadline">
-                            <div class="deadline_info">16:00 - 17:00 (wolny)</div>
-                            <div class="deadline_options">
-                                <button>Wyrezerwuj termin</button>
-                                <button>Usuń termin</button>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="deadline">
-                            <div class="deadline_info">16:00 - 17:00 (wolny)</div>
-                            <div class="deadline_options">
-                                <button>Wyrezerwuj termin</button>
-                                <button>Usuń termin</button>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="deadline">
-                            <div class="deadline_info">16:00 - 17:00 (wolny)</div>
-                            <div class="deadline_options">
-                                <button>Wyrezerwuj termin</button>
-                                <button>Usuń termin</button>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="deadline">
-                            <div class="deadline_info">16:00 - 17:00 (wolny)</div>
-                            <div class="deadline_options">
-                                <button>Wyrezerwuj termin</button>
-                                <button>Usuń termin</button>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="deadline">
-                            <div class="deadline_info">16:00 - 17:00 (wolny)</div>
-                            <div class="deadline_options">
-                                <button>Wyrezerwuj termin</button>
-                                <button>Usuń termin</button>
-                            </div>
-                        </div>
-                    </li>
+
                     <li>
                         <div class="deadline">
                             <div class="deadline_info">16:00 - 17:00 (wolny)</div>
@@ -142,6 +89,73 @@
             <li>tomasz.mizak@wpia.uni.lodz.pl</li>
         </ul>
     </footer>
+    <div class="create_deadline">
+        <div class="create_wrapper">
+            <div class="create_selection">
+                <button onclick="displaySingleTermForm()">Pojedyńczy termin</button>
+                <button onclick="displayMultipleTermForm()">Seria terminów</button>
+                <button onclick="cancelTermCreation()">Anuluj</button>
+            </div>
+            <div id="singleTermForm">
+                <button onclick="backToCreationSelection()" class="backButton">Powrót</button>
+                <form action="php/addTerm.php">
+                    <div>
+                        <label for="singleTermTime">Godzina</label>
+                        <select name="singleTerm_time" id="singleTermTime"></select>
+                    </div>
+                    <div>
+                        <label for="">Maks osób</label>
+                        <input type="number" name="maxStudentCount">
+                    </div>
+                    <div>
+                        <input type="submit" value="Dodaj termin">
+                    </div>
+                </form>
+            </div>
+            <div id="multipleTermForm">
+                <button onclick="backToCreationSelection()" class="backButton">Powrót</button>
+                <form action="">
+                    <div>
+                        <label for="singleTermTime">Wybierz początkową godzinę</label>
+                        <select name="multipleTerm_startTime" id="multipleTermTime_Start"></select>
+                    </div>
+                    <div>
+                        <label for="singleTermTime">Wybierz końcową godzinę</label>
+                        <select name="multipleTerm_endTime" id="multipleTermTime_End"></select>
+                    </div>
+                    <div>
+                        <label for="">Maks osób</label>
+                        <input type="number" name="maxStudentCount">
+                    </div>
+                    <div>
+                        <input type="submit" value="Dodaj termin">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        const displaySingleTermForm = () => {
+            $('.create_selection').css({"display":"none"});
+            $('#singleTermForm').css({"display":"flex"});
+        }
+        const displayMultipleTermForm = () => {
+            $('.create_selection').css({"display":"none"});
+            $('#multipleTermForm').css({"display":"flex"});
+        }
+        const backToCreationSelection = () => {
+            $('#singleTermForm').css({"display":"none"});
+            $('#multipleTermForm').css({"display":"none"});
+            $('.create_selection').css({"display":"flex"});
+
+        }
+        const cancelTermCreation = () => {
+            $('.create_deadline').css({"display":"none"});
+        }
+        const showTermCreation = () => {
+            $('.create_deadline').css({"display":"flex"});
+        }
+    </script>
     <?php
         require_once "php/dbconn.php";
         $sql = "SELECT * FROM deadlines";
@@ -155,11 +169,20 @@
     ?>
     <script>
 
+        const workHours = [
+            "09:00", "10:00", "11:00",
+            "12:00", "13:00", "14:00",
+            "15:00", "16:00", "17:00",
+            "18:00"
+        ]
+
         const loadedDeadlines = <?php echo json_encode($deadlines); ?>;
 
         loadedDeadlines.forEach((v,i) => {
-            loadedDeadlines[i].date = new Date(v.date);
+            loadedDeadlines[i].date = new Date(Date.parse(v.date.replace(/[-]/g,'/')));
         })
+
+        console.log(`${JSON.stringify(loadedDeadlines)}`)
 
         const capitalize = (s) => {
             if (typeof s !== 'string') return ''
@@ -204,15 +227,19 @@
                     let day = k+((i-1)*7);
                     if(day>daysInMonth(currentMonth, currentYear)) break;
                     let is_tagged = false;
-                    for(let f = 1; f<=loadedDeadlines.length; f++) {
-                        const v = loadedDeadlines[f-1];
-                        if(currentYear!=v.date.getFullYear()) break;
-                        if(currentMonth!=v.date.getMonth()+1) break;
-                        if(day == v.date.getDay()) {
+
+                    for(let index = 1; index<=loadedDeadlines.length; index++) {
+                        const object = loadedDeadlines[index-1];
+                        let _day = object.date.getDate();
+                        let _month = object.date.getMonth()+1;
+                        let _year = object.date.getFullYear();
+                        if(_year!=currentYear) continue;
+                        if(_month!=currentMonth) continue;
+                        if(_day==day) {
                             is_tagged = true;
-                            break;
-                        };
+                        }
                     }
+
                     if(is_tagged) {
                         row+=`<th><button class="tagged" onclick="displayDayDescription(${day}, ${k})">${day}</button></th>`
                     } else {
@@ -253,6 +280,11 @@
         $(document).ready(function () {
             loadDays();
             updateViewData();
+            workHours.forEach((v,i) => {
+                $('#singleTermTime').append(`<option value="${i}">${v}</option>`)
+                $('#multipleTermTime_Start').append(`<option value="${i}">${v}</option>`)
+                $('#multipleTermTime_End').append(`<option value="${i}">${v}</option>`)
+            })
         });
         //$('#calendar_days').append('<tr><th>hello world</th></tr>');
 
