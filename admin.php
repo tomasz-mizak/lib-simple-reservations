@@ -61,7 +61,7 @@
                         <button onclick="displayCalendarView()">Wróć</button>
                     </div>
                 </div>
-                <ul>
+                <ul id="availableDeadlines">
 
                     <li>
                         <div class="deadline">
@@ -98,14 +98,14 @@
             </div>
             <div id="singleTermForm">
                 <button onclick="backToCreationSelection()" class="backButton">Powrót</button>
-                <form action="php/addTerm.php">
+                <form action="php/addTerm.php" method="POST" id="sform">
                     <div>
                         <label for="singleTermTime">Godzina</label>
                         <select name="singleTerm_time" id="singleTermTime"></select>
                     </div>
                     <div>
                         <label for="">Maks osób</label>
-                        <input type="number" name="maxStudentCount">
+                        <select name="maxStudentCount_1" id="maxStudentCount_1"></select>
                     </div>
                     <div>
                         <input type="submit" value="Dodaj termin">
@@ -114,7 +114,7 @@
             </div>
             <div id="multipleTermForm">
                 <button onclick="backToCreationSelection()" class="backButton">Powrót</button>
-                <form action="">
+                <form action="php/addTerm.php" method="POST" id="mform">
                     <div>
                         <label for="singleTermTime">Wybierz początkową godzinę</label>
                         <select name="multipleTerm_startTime" id="multipleTermTime_Start"></select>
@@ -125,7 +125,7 @@
                     </div>
                     <div>
                         <label for="">Maks osób</label>
-                        <input type="number" name="maxStudentCount">
+                        <select name="maxStudentCount_2" id="maxStudentCount_2"></select>
                     </div>
                     <div>
                         <input type="submit" value="Dodaj termin">
@@ -136,24 +136,24 @@
     </div>
     <script>
         const displaySingleTermForm = () => {
-            $('.create_selection').css({"display":"none"});
-            $('#singleTermForm').css({"display":"flex"});
+            $('.create_selection').hide();
+            $('#singleTermForm').show();
         }
         const displayMultipleTermForm = () => {
-            $('.create_selection').css({"display":"none"});
-            $('#multipleTermForm').css({"display":"flex"});
+            $('.create_selection').hide();
+            $('#multipleTermForm').show();
         }
         const backToCreationSelection = () => {
-            $('#singleTermForm').css({"display":"none"});
-            $('#multipleTermForm').css({"display":"none"});
-            $('.create_selection').css({"display":"flex"});
+            $('#singleTermForm').hide();
+            $('#multipleTermForm').hide();
+            $('.create_selection').show();
 
         }
         const cancelTermCreation = () => {
-            $('.create_deadline').css({"display":"none"});
+            $('.create_deadline').hide();
         }
         const showTermCreation = () => {
-            $('.create_deadline').css({"display":"flex"});
+            $('.create_deadline').show();
         }
     </script>
     <?php
@@ -207,15 +207,16 @@
         let selDay = 1
 
         const displayCalendarView = () => {
-            $('.calendar_view').css({"display":"flex"});
-            $('.calendar_details').css({"display":"none"});
+            $('.calendar_view').show();
+            $('.calendar_details').hide();
         }
 
         const displayDayDescription = (day, weekday) => {
             selDay = day;
-            $('.calendar_view').css({"display":"none"});
-            $('.calendar_details').css({"display":"flex"});
+            $('.calendar_view').hide();
+            $('.calendar_details').show();
             $('#selectedDay').html(`${weekDayNames[weekday-1]} - ${selDay}.${currentMonth}.${currentYear}`);
+
         }
 
         const loadDays = () => {
@@ -276,15 +277,78 @@
             updateViewData();
         }
 
+        $('#sform').submit(function(event) {
+
+            event.preventDefault();
+
+            let data = {
+                singleTerm_time: $('#singleTermTime option:selected').text(),
+                maxStudentCount_1: $('#maxStudentCount_1 option:selected').text(),
+                day: selDay,
+                month: currentMonth,
+                year: currentYear
+            }
+
+            $.ajax({
+                type: 'post',
+                url: 'php/addTerm.php',
+                data: data,
+                success: function(response) {
+                    alert(response);
+                    $('.create_deadline').hide();
+                    loadDays();
+                },
+                error: function() {
+                    alert("Błąd dodawania terminu!");
+                }
+            })
+
+        });
+
+        $('#mform').submit(function(event) {
+
+            event.preventDefault();
+
+            let data = {
+                multipleTermTime_Start: $('#multipleTermTime_Start').val(),
+                multipleTermTime_End: $('#multipleTermTime_End').val(),
+                maxStudentCount_2: $('#maxStudentCount_2 option:selected').text(),
+                day: selDay,
+                month: currentMonth,
+                year: currentYear
+            }
+
+            $.ajax({
+                type: 'post',
+                url: 'php/addTerm.php',
+                data: data,
+                success: function(response) {
+                    alert(response)
+                },
+                error: function() {
+                    alert("Błąd dodawania terminu!");
+                }
+            })
+
+        });
+
         // first load
         $(document).ready(function () {
             loadDays();
             updateViewData();
+            $('.create_deadline').hide();
+            $('.calendar_details').hide();
+            $('#singleTermForm').hide();
+            $('#multipleTermForm').hide();
             workHours.forEach((v,i) => {
                 $('#singleTermTime').append(`<option value="${i}">${v}</option>`)
                 $('#multipleTermTime_Start').append(`<option value="${i}">${v}</option>`)
                 $('#multipleTermTime_End').append(`<option value="${i}">${v}</option>`)
             })
+            for(let i = 1; i<=30; i++) {
+                $('#maxStudentCount_1').append(`<option value="${i}">${i}</option>`)
+                $('#maxStudentCount_2').append(`<option value="${i}">${i}</option>`)
+            }
         });
         //$('#calendar_days').append('<tr><th>hello world</th></tr>');
 

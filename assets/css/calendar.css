@@ -62,7 +62,7 @@
 /* Calendar details */
 
 .calendar_details {
-    display: none;
+    display: flex;
     justify-content: flex-start;
     align-items: center;
     flex-flow: column wrap;
@@ -151,7 +151,7 @@ th,tr,button {
 /* create_deadline */
 
 .create_deadline {
-    display: none;
+    display: flex;
 
     justify-content: center;
     align-items: center;
@@ -183,14 +183,14 @@ th,tr,button {
 .create_deadline button {
     background: black;
     color: whitesmoke;
-    border: 0px;
+    border: 0;
     width: 100px;
     height: 40px;
     margin: 4px;
 }
 
 .create_deadline .create_wrapper #singleTermForm {
-    display: none;
+    display: flex;
     align-items: flex-start;
     justify-content: center;
     flex-flow: column wrap;
@@ -202,7 +202,7 @@ th,tr,button {
 }
 
 .create_deadline .create_wrapper #multipleTermForm {
-    display: none;
+    display: flex;
     align-items: flex-start;
     justify-content: center;
     flex-flow: column wrap;
