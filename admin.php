@@ -61,19 +61,7 @@
                         <button onclick="displayCalendarView()">Wróć</button>
                     </div>
                 </div>
-                <ul id="availableDeadlines">
-
-                    <li>
-                        <div class="deadline">
-                            <div class="deadline_info">16:00 - 17:00 (wolny)</div>
-                            <div class="deadline_options">
-                                <button>Wyrezerwuj termin</button>
-                                <button>Usuń termin</button>
-                            </div>
-                        </div>
-                    </li>
-
-                </ul>
+                <ul id="availableDeadlines"></ul>
             </div>
         </div>
     </section>
@@ -211,12 +199,64 @@
             $('.calendar_details').hide();
         }
 
+        /*
+                            <li>
+                        <div class="deadline">
+                            <div class="deadline_info">16:00 - 17:00 (wolny)</div>
+                            <div class="deadline_options">
+                                <button>Wyrezerwuj termin</button>
+                                <button>Usuń termin</button>
+                            </div>
+                        </div>
+                    </li>
+         */
+
         const displayDayDescription = (day, weekday) => {
             selDay = day;
             $('.calendar_view').hide();
             $('.calendar_details').show();
             $('#selectedDay').html(`${weekDayNames[weekday-1]} - ${selDay}.${currentMonth}.${currentYear}`);
-
+            $('#availableDeadlines').html('');
+            $.ajax({
+                type: 'post',
+                url: 'php/getDeadlines.php',
+                data: {
+                    day: selDay,
+                    month: currentMonth,
+                    year: currentYear
+                },
+                success: function(response) {
+                    response = JSON.parse(response);
+                    response.forEach((v,i) => {
+                       let d = new Date(v.date);
+                       $.ajax({
+                           type: 'post',
+                           url: 'php/getDeadlineUsers.php',
+                           data: { deadline_id: v.id },
+                           success: function(resp) {
+                               let registredStudents = JSON.parse(resp);
+                               $('#availableDeadlines').append(`
+                                <li>
+                                    <div class="deadline">
+                                        <div class="deadline_info">Godzina: ${d.getHours()}:${d.getMinutes()}, zapisane osoby: ${registredStudents.length}/${v.max_student_count}</div>
+                                        <div class="deadline_options">
+                                            <button>Wyrezerwuj termin</button>
+                                            <button>Usuń termin</button>
+                                            <button>Podgląd osób</button>
+                                        </div>
+                                    </div>
+                                </li>`);
+                           }
+                       });
+                    });
+                    if(response.length==0) {
+                        $('#availableDeadlines').append(`<li>Brak terminów na wybrany dzień</li>`)
+                    }
+                },
+                error: function() {
+                    alert("Wystąpił błąd!");
+                }
+            })
         }
 
         const loadDays = () => {
@@ -294,9 +334,9 @@
                 url: 'php/addTerm.php',
                 data: data,
                 success: function(response) {
-                    alert(response);
-                    $('.create_deadline').hide();
-                    loadDays();
+                    response = JSON.parse(response);
+                    alert(response.error_message);
+                    alert(response.success)
                 },
                 error: function() {
                     alert("Błąd dodawania terminu!");
@@ -350,8 +390,6 @@
                 $('#maxStudentCount_2').append(`<option value="${i}">${i}</option>`)
             }
         });
-        //$('#calendar_days').append('<tr><th>hello world</th></tr>');
-
 
     </script>
 </body>

@@ -6,20 +6,6 @@ $t = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "1
 
 require_once "dbconn.php";
 
-function is_deadline_exist($date) {
-    $sql = "SELECT * FROM deadlines WHERE date=?";
-    if($stmt = $link->prepare($sql)) {
-        $stmt->bind_param("s", $param_date);
-        $param_date = $date;
-        if($stmt->execute()) {
-            $stmt->store_result();
-            if($stmt->num_rows > 0) {
-                return true;
-            }
-        }
-    }
-}
-
 if(isset($_POST['singleTerm_time']) && isset($_POST['maxStudentCount_1'])) {
 
     $time = $_POST['singleTerm_time'];
@@ -31,8 +17,24 @@ if(isset($_POST['singleTerm_time']) && isset($_POST['maxStudentCount_1'])) {
     $datetime = new DateTime($year . "-" . $month . "-" . $day . " " . $time);
     $date = $datetime->format("Y-m-d H:i:s");
 
-    if(is_deadline_exist($date)) {
-       echo "Taki termin istnieje!";
+    $condition = false;
+    $sql = "SELECT * FROM deadlines WHERE date=?";
+    if($stmt = $link->prepare($sql)) {
+        $stmt->bind_param("s", $param_date);
+        $param_date = $date;
+        if($stmt->execute()) {
+            $stmt->store_result();
+            if($stmt->num_rows > 0) {
+                $condition = true;
+            }
+        }
+    }
+
+    if($condition) {
+        echo json_encode([
+            "success" => false,
+            "error_message" => "Wystąpił błąd podczas dodawania nowego terminu, taki termin już istnieje!"
+        ]);
        return;
     }
 
@@ -72,9 +74,29 @@ if(isset($_POST['singleTerm_time']) && isset($_POST['maxStudentCount_1'])) {
     $year = $_POST['year'];
 
     $execCondition = true;
+    $repeatingDeadline = false;
     for($i = $start_time; $i<=$end_time; $i++) {
         $datetime = new DateTime($year . "-" . $month . "-" . $day . " " . $t[$i]);
         $date = $datetime->format("Y-m-d H:i:s");
+
+        $condition = false;
+        $sql = "SELECT * FROM deadlines WHERE date=?";
+        if($stmt = $link->prepare($sql)) {
+            $stmt->bind_param("s", $param_date);
+            $param_date = $date;
+            if($stmt->execute()) {
+                $stmt->store_result();
+                if($stmt->num_rows > 0) {
+                    $condition = true;
+                }
+            }
+        }
+
+        if($condition) {
+            $repeatingDeadline = true;
+            continue;
+        }
+
         if($stmt = $link->prepare($sql)) {
             $stmt->bind_param("isi", $param_author_id, $param_date, $param_max_student_count);
             $param_author_id = $_SESSION['id'];
@@ -90,6 +112,14 @@ if(isset($_POST['singleTerm_time']) && isset($_POST['maxStudentCount_1'])) {
         echo json_encode([
             "success" => false,
             "error_message" => "Wystąpił błąd [#002]"
+        ]);
+        return;
+    }
+
+    if($repeatingDeadline) {
+        echo json_encode([
+            "success" => true,
+            "error_message" => "Terminy zostały stworzone, jednak niektóre już istniały - zostały pominięte."
         ]);
         return;
     }
