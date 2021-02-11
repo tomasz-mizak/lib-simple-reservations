@@ -10,23 +10,11 @@
 </head>
 <body>
 
-    <script>
-        $.ajax({
-            type: 'post',
-            url: 'php/getDeadlines.php',
-            data: {
-                day: 6,
-                month: 2,
-                year: 2021
-            },
-            success: function(response) {
-                alert(response);
-            },
-            error: function() {
-                alert("Błąd dodawania terminu!");
-            }
-        })
-    </script>
+<?php
+
+
+
+?>
 
 </body>
 </html>

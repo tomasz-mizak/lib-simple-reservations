@@ -175,6 +175,7 @@
         };
 
         const displayCalendarView = () => {
+            calendar_updateView();
             $('.calendar_view').show();
             $('.calendar_details').hide();
         };
@@ -314,7 +315,13 @@
                     url: 'php/deleteDeadline.php',
                     data: { deadline_id: id },
                     success: (res) => {
-                        alert(res);
+                        res = JSON.parse(res);
+                        if(res.condition) {
+                            alert(res.error_message);
+                            displayCalendarView();
+                        } else {
+                            alert(res.error_message);
+                        }
                     }
                 });
             }
