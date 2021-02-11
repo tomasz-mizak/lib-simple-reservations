@@ -32,7 +32,7 @@ if(isset($_POST['singleTerm_time']) && isset($_POST['maxStudentCount_1'])) {
 
     if($condition) {
         echo json_encode([
-            "success" => false,
+            "condition" => false,
             "error_message" => "Wystąpił błąd podczas dodawania nowego terminu, taki termin już istnieje!"
         ]);
        return;
@@ -45,9 +45,14 @@ if(isset($_POST['singleTerm_time']) && isset($_POST['maxStudentCount_1'])) {
         $param_author_id = $_SESSION['id'];
         $param_date = $date;
         $param_max_student_count = $studentCount;
-        if(!$stmt->execute()) {
+        if($stmt->execute()) {
             echo json_encode([
-                "success" => false,
+                "condition" => true,
+                "error_message" => "Sukces! dodano termin!"
+            ]);
+        } else {
+            echo json_encode([
+                "condition" => false,
                 "error_message" => "Wysąpił błąd [#003]"
             ]);
         }
@@ -60,13 +65,11 @@ if(isset($_POST['singleTerm_time']) && isset($_POST['maxStudentCount_1'])) {
 
     if($start_time>$end_time) {
         echo json_encode([
-            "success" => true,
+            "condition" => true,
             "error_message" => "Data początkowa nie może być późniejsza niż końcowa!"
         ]);
         return;
     }
-
-    $sql = "INSERT INTO deadlines (author_id, date, max_student_count) VALUES (?,?,?)";
 
     $studentCount = $_POST['maxStudentCount_2'];
     $day = $_POST['day'];
@@ -97,6 +100,7 @@ if(isset($_POST['singleTerm_time']) && isset($_POST['maxStudentCount_1'])) {
             continue;
         }
 
+        $sql = "INSERT INTO deadlines (author_id, date, max_student_count) VALUES (?,?,?)";
         if($stmt = $link->prepare($sql)) {
             $stmt->bind_param("isi", $param_author_id, $param_date, $param_max_student_count);
             $param_author_id = $_SESSION['id'];
@@ -110,7 +114,7 @@ if(isset($_POST['singleTerm_time']) && isset($_POST['maxStudentCount_1'])) {
 
     if(!$execCondition) {
         echo json_encode([
-            "success" => false,
+            "condition" => false,
             "error_message" => "Wystąpił błąd [#002]"
         ]);
         return;
@@ -118,20 +122,20 @@ if(isset($_POST['singleTerm_time']) && isset($_POST['maxStudentCount_1'])) {
 
     if($repeatingDeadline) {
         echo json_encode([
-            "success" => true,
+            "condition" => true,
             "error_message" => "Terminy zostały stworzone, jednak niektóre już istniały - zostały pominięte."
         ]);
         return;
     }
 
     echo json_encode([
-        "success" => true,
+        "condition" => true,
         "error_message" => "Dodano terminy!"
     ]);
 
 } else {
     echo json_encode([
-       "success" => false,
+       "condition" => false,
        "error_message" => "Wystąpił błąd [#001]"
     ]);
 }

@@ -56,7 +56,11 @@
 }
 
 .calendar_view .tagged {
-    background: rgba(255,0,0,.3);
+    background: rgba(0,255,9,.3);
+}
+
+.calendar_view .current {
+    border: 3px solid rgba(255,0,0,1);
 }
 
 /* Calendar details */

@@ -49,8 +49,8 @@
                     </table>
                 </div>
                 <div class="calendar_view_options">
-                    <button onclick="previousMonth()">Poprzedni miesiąc</button>
-                    <button onclick="nextMonth()">Następny miesiąc</button>
+                    <button onclick="calendar_displayPreviousMonth()"> << </button>
+                    <button onclick="calendar_displayNextMonth()"> >> </button>
                 </div>
             </div>
             <div class="calendar_details">
@@ -67,12 +67,12 @@
     </section>
     <footer>
         <ul>
-            <b>Ważne linki</b>
+            <li><b>Ważne linki</b></li>
             <li>Strona główna WPiA</li>
             <li>Strona biblioteki WPiA</li>
         </ul>
         <ul>
-            <b>Kontakt</b>
+            <li><b>Kontakt</b></li>
             <li>tel. 42 635 46 25</li>
             <li>tomasz.mizak@wpia.uni.lodz.pl</li>
         </ul>
@@ -123,99 +123,63 @@
         </div>
     </div>
     <script>
+
+        'use strict';
+
+        // initials
+        const workHours = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+        const monthNames = ['styczeń', 'luty', 'marzec', 'kwiecień', 'maj',
+            'czerwiec', 'lipiec', 'sierpień', 'wrzesień',
+            'październik', 'listopad', 'grudzień'];
+        const weekDayNames = ['poniedziałek', 'wtorek', 'środa',
+            'czwartek', 'piątek', 'sobota', 'niedziela'];
+
+        const date = new Date();
+        let currentMonth = date.getMonth()+1
+        let currentYear = date.getFullYear()
+        let selDay = 1
+
+        // functions
         const displaySingleTermForm = () => {
             $('.create_selection').hide();
             $('#singleTermForm').show();
-        }
+        };
+
         const displayMultipleTermForm = () => {
             $('.create_selection').hide();
             $('#multipleTermForm').show();
-        }
+        };
+
         const backToCreationSelection = () => {
             $('#singleTermForm').hide();
             $('#multipleTermForm').hide();
             $('.create_selection').show();
 
-        }
+        };
+
         const cancelTermCreation = () => {
             $('.create_deadline').hide();
-        }
+        };
+
         const showTermCreation = () => {
             $('.create_deadline').show();
-        }
-    </script>
-    <?php
-        require_once "php/dbconn.php";
-        $sql = "SELECT * FROM deadlines";
-        $deadlines = [];
-        if($result = $link->query($sql)) {
-            while($row = $result->fetch_assoc()) {
-                array_push($deadlines, [ 'id' => $row['id'], 'date' => $row['date'] ]);
-            }
-        }
-        $link->close();
-    ?>
-    <script>
-
-        const workHours = [
-            "09:00", "10:00", "11:00",
-            "12:00", "13:00", "14:00",
-            "15:00", "16:00", "17:00",
-            "18:00"
-        ]
-
-        const loadedDeadlines = <?php echo json_encode($deadlines); ?>;
-
-        loadedDeadlines.forEach((v,i) => {
-            loadedDeadlines[i].date = new Date(Date.parse(v.date.replace(/[-]/g,'/')));
-        })
-
-        console.log(`${JSON.stringify(loadedDeadlines)}`)
+        };
 
         const capitalize = (s) => {
             if (typeof s !== 'string') return ''
             return s.charAt(0).toUpperCase() + s.slice(1)
-        }
+        };
 
         const daysInMonth = (month, year) => {
             return new Date(year, month, 0).getDate();
-        }
-
-        const monthNames = ['styczeń', 'luty', 'marzec', 'kwiecień', 'maj',
-                            'czerwiec', 'lipiec', 'sierpień', 'wrzesień',
-                            'październik', 'listopad', 'grudzień'];
-
-        const weekDayNames = ['poniedziałek', 'wtorek', 'środa',
-                              'czwartek', 'piątek', 'sobota', 'niedziela'];
-
-        const date = new Date();
-
-        let currentMonth = date.getMonth()+1
-        let currentYear = date.getFullYear()
-        let selDay = 1
+        };
 
         const displayCalendarView = () => {
             $('.calendar_view').show();
             $('.calendar_details').hide();
-        }
+        };
 
-        /*
-                            <li>
-                        <div class="deadline">
-                            <div class="deadline_info">16:00 - 17:00 (wolny)</div>
-                            <div class="deadline_options">
-                                <button>Wyrezerwuj termin</button>
-                                <button>Usuń termin</button>
-                            </div>
-                        </div>
-                    </li>
-         */
-
-        const displayDayDescription = (day, weekday) => {
-            selDay = day;
-            $('.calendar_view').hide();
-            $('.calendar_details').show();
-            $('#selectedDay').html(`${weekDayNames[weekday-1]} - ${selDay}.${currentMonth}.${currentYear}`);
+        const loadDayDeadlines = () => {
             $('#availableDeadlines').html('');
             $.ajax({
                 type: 'post',
@@ -228,26 +192,25 @@
                 success: function(response) {
                     response = JSON.parse(response);
                     response.forEach((v,i) => {
-                       let d = new Date(v.date);
-                       $.ajax({
-                           type: 'post',
-                           url: 'php/getDeadlineUsers.php',
-                           data: { deadline_id: v.id },
-                           success: function(resp) {
-                               let registredStudents = JSON.parse(resp);
-                               $('#availableDeadlines').append(`
+                        let d = new Date(v.date);
+                        $.ajax({
+                            type: 'post',
+                            url: 'php/getDeadlineUsers.php',
+                            data: { deadline_id: v.id },
+                            success: function(resp) {
+                                let registredStudents = JSON.parse(resp);
+                                $('#availableDeadlines').append(`
                                 <li>
                                     <div class="deadline">
                                         <div class="deadline_info">Godzina: ${d.getHours()}:${d.getMinutes()}, zapisane osoby: ${registredStudents.length}/${v.max_student_count}</div>
                                         <div class="deadline_options">
-                                            <button>Wyrezerwuj termin</button>
-                                            <button>Usuń termin</button>
+                                            <button onclick="deleteDeadline(${v.id})">Usuń termin</button>
                                             <button>Podgląd osób</button>
                                         </div>
                                     </div>
                                 </li>`);
-                           }
-                       });
+                            }
+                        });
                     });
                     if(response.length==0) {
                         $('#availableDeadlines').append(`<li>Brak terminów na wybrany dzień</li>`)
@@ -256,67 +219,108 @@
                 error: function() {
                     alert("Wystąpił błąd!");
                 }
-            })
-        }
+            });
+        };
 
-        const loadDays = () => {
-            $('#calendar_days').html('');
-            const weeks = Math.ceil(daysInMonth(currentMonth, currentYear)/7)
-            for(let i = 1; i<=weeks; i++) {
-                let row = '<tr>';
-                for(let k = 1; k<=7; k++) {
-                    let day = k+((i-1)*7);
-                    if(day>daysInMonth(currentMonth, currentYear)) break;
-                    let is_tagged = false;
+        const displayDayDescription = (day, weekday) => {
+            selDay = day;
+            $('.calendar_view').hide();
+            $('.calendar_details').show();
+            $('#selectedDay').html(`${weekDayNames[weekday-1]} - ${selDay}.${currentMonth}.${currentYear}`);
+            $('#availableDeadlines').html('');
+            loadDayDeadlines()
+        };
 
-                    for(let index = 1; index<=loadedDeadlines.length; index++) {
-                        const object = loadedDeadlines[index-1];
-                        let _day = object.date.getDate();
-                        let _month = object.date.getMonth()+1;
-                        let _year = object.date.getFullYear();
-                        if(_year!=currentYear) continue;
-                        if(_month!=currentMonth) continue;
-                        if(_day==day) {
-                            is_tagged = true;
+        const loadDays = async () => {
+            $.ajax({
+                type: 'post',
+                url: 'php/getDeadlines.php',
+                success: (res) => {
+                    res = JSON.parse(res);
+                    res.forEach((v,i) => { res[i].date = new Date(Date.parse(v.date.replace(/[-]/g,'/'))); });
+                    let viewDeadlines = res;
+                    $('#calendar_days').html('');
+                    const weeks = Math.ceil(daysInMonth(currentMonth, currentYear) / 7)
+                    for (let i = 1; i <= weeks; i++) {
+                        let row = '<tr>';
+                        for (let k = 1; k <= 7; k++) {
+                            let day = k + ((i - 1) * 7);
+                            if (day > daysInMonth(currentMonth, currentYear)) break;
+                            let is_tagged = false;
+                            let is_current = false;
+                            for (let index = 1; index <= viewDeadlines.length; index++) {
+                                const object = viewDeadlines[index - 1];
+                                let _day = object.date.getDate();
+                                let _month = object.date.getMonth() + 1;
+                                let _year = object.date.getFullYear();
+                                if (_year != currentYear) continue;
+                                if (_month != currentMonth) continue;
+                                if (_day == day) {
+                                    is_tagged = true;
+                                }
+                                let currDate = new Date();
+                                if(currDate.getDate() == day) {
+                                    is_current = true;
+                                }
+                            }
+
+                            if(is_tagged && is_current) {
+                                row += `<th><button class="current tagged" onclick="displayDayDescription(${day}, ${k})">${day}</button></th>`;
+                            } else if(is_current) {
+                                row += `<th><button class="current" onclick="displayDayDescription(${day}, ${k})">${day}</button></th>`;
+                            } else if(is_tagged) {
+                                row += `<th><button class="tagged" onclick="displayDayDescription(${day}, ${k})">${day}</button></th>`;
+                            } else {
+                                row += `<th><button onclick="displayDayDescription(${day}, ${k})">${day}</button></th>`
+                            }
                         }
-                    }
-
-                    if(is_tagged) {
-                        row+=`<th><button class="tagged" onclick="displayDayDescription(${day}, ${k})">${day}</button></th>`
-                    } else {
-                        row+=`<th><button onclick="displayDayDescription(${day}, ${k})">${day}</button></th>`
-                    }
+                        row += '</tr>'
+                        $('#calendar_days').append(row);
+                    };
                 }
-                row+='</tr>'
-                $('#calendar_days').append(row);
-            };
-        }
+            });
+        };
 
-        const updateViewData = () => {
+        const calendar_updateView = () => {
             $('#currentMonthAndYear').html(`${capitalize(monthNames[currentMonth-1])}, ${currentYear}`);
             loadDays();
-        }
+        };
 
-        const nextMonth = () => {
+        const calendar_displayNextMonth = () => {
             if(currentMonth==12) {
                 currentYear++;
                 currentMonth = 1;
             } else {
                 currentMonth++;
             }
-            updateViewData();
-        }
+            calendar_updateView();
+        };
 
-        const previousMonth = () => {
+        const calendar_displayPreviousMonth = () => {
             if(currentMonth==1) {
                 currentYear--;
                 currentMonth = 12;
             } else {
                 currentMonth--;
             }
-            updateViewData();
-        }
+            calendar_updateView();
+        };
 
+        const deleteDeadline = (id) => {
+            let condition = confirm("Czy na pewno chcesz usunąć wybrany termin?");
+            if(condition) {
+                $.ajax({
+                    type: 'post',
+                    url: 'php/deleteDeadline.php',
+                    data: { deadline_id: id },
+                    success: (res) => {
+                        alert(res);
+                    }
+                });
+            }
+        };
+
+        // event handling
         $('#sform').submit(function(event) {
 
             event.preventDefault();
@@ -335,8 +339,14 @@
                 data: data,
                 success: function(response) {
                     response = JSON.parse(response);
-                    alert(response.error_message);
-                    alert(response.success)
+                    if(response.condition) {
+                        alert(response.error_message);
+                        backToCreationSelection();
+                        cancelTermCreation();
+                        loadDayDeadlines();
+                    } else {
+                        alert(resonse.error_message);
+                    }
                 },
                 error: function() {
                     alert("Błąd dodawania terminu!");
@@ -363,7 +373,15 @@
                 url: 'php/addTerm.php',
                 data: data,
                 success: function(response) {
-                    alert(response)
+                    response = JSON.parse(response);
+                    if(response.condition) {
+                        alert(response.error_message);
+                        backToCreationSelection();
+                        cancelTermCreation();
+                        loadDayDeadlines();
+                    } else {
+                        alert(response.error_message);
+                    }
                 },
                 error: function() {
                     alert("Błąd dodawania terminu!");
@@ -372,24 +390,24 @@
 
         });
 
-        // first load
-        $(document).ready(function () {
-            loadDays();
-            updateViewData();
-            $('.create_deadline').hide();
-            $('.calendar_details').hide();
-            $('#singleTermForm').hide();
-            $('#multipleTermForm').hide();
-            workHours.forEach((v,i) => {
-                $('#singleTermTime').append(`<option value="${i}">${v}</option>`)
-                $('#multipleTermTime_Start').append(`<option value="${i}">${v}</option>`)
-                $('#multipleTermTime_End').append(`<option value="${i}">${v}</option>`)
-            })
-            for(let i = 1; i<=30; i++) {
-                $('#maxStudentCount_1').append(`<option value="${i}">${i}</option>`)
-                $('#maxStudentCount_2').append(`<option value="${i}">${i}</option>`)
-            }
+        // main initialization
+        $('.create_deadline').hide();
+        $('.calendar_details').hide();
+        $('#singleTermForm').hide();
+        $('#multipleTermForm').hide();
+
+        workHours.forEach((v,i) => {
+            $('#singleTermTime').append(`<option value="${i}">${v}</option>`)
+            $('#multipleTermTime_Start').append(`<option value="${i}">${v}</option>`)
+            $('#multipleTermTime_End').append(`<option value="${i}">${v}</option>`)
         });
+
+        for(let i = 1; i<=30; i++) {
+            $('#maxStudentCount_1').append(`<option value="${i}">${i}</option>`)
+            $('#maxStudentCount_2').append(`<option value="${i}">${i}</option>`)
+        };
+
+        calendar_updateView();
 
     </script>
 </body>

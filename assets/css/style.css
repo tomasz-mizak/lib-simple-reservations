@@ -11,11 +11,14 @@
 html, body {
     margin: 0;
     padding: 0;
+    min-height: 100vh;
 }
 
 body {
     display: flex;
-    flex-flow: column wrap;
+    justify-content: stretch;
+    align-items: stretch;
+    flex-flow: column;
 }
 
 header {
@@ -38,6 +41,7 @@ header * {
 section {
     padding: 62px;
 
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -45,11 +49,14 @@ section {
 }
 
 section div {
-    margin-bottom: 42px;
+    margin-bottom: 32px;
 }
 
 .message_box {
     width: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 footer {

@@ -27,7 +27,21 @@ if(isset($_POST["day"]) && isset($_POST['month']) && isset($_POST['year'])) {
         }
     }
 } else {
-    echo json_encode([]);
+    $sql = "SELECT * FROM deadlines";
+    $t = [];
+    if($stmt = $link->prepare($sql)) {
+        if($stmt->execute()) {
+            $stmt->bind_result($id, $author_id, $date, $max_student_count, $created_at);
+            while($stmt->fetch()) {
+                $e = [
+                  'id' => $id,
+                  'date' => $date
+                ];
+                array_push($t, $e);
+            }
+        }
+    }
+    echo json_encode($t);
 }
 
 ?>
