@@ -12,11 +12,11 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/calendar.css">
-    <link rel="stylesheet" href="assets/css/login.css">
+    <link rel="stylesheet" href="assets/css/enrollment.css">
 </head>
 <body>
 <header>
@@ -26,35 +26,13 @@
 <section>
     <div class="enrollment">
         <h1>Rezerwowanie terminu</h1>
-        <form id="enrollmentForm" action="">
-            <div>
-                <label for="albumNumber">Numer indeksu:</label>
-                <input type="text" id="albumNumber">
-            </div>
-            <div>
-                <label for="emailAddress">Adres email:</label>
+        <div class="enrollment_view">
+            <form method="post" action="php/validateEmail.php" id="vform">
+                <label for="emailAddress">Podaj uczelniany adres email</label>
                 <input type="email" id="emailAddress">
-            </div>
-            <div>
-                <b>Wybierz stanowisko oraz termin z listy dostępnych terminów:</b>
-                <div>
-                    <label for="enrollmentForm">Dzień:</label>
-                    <select name="" id="day" form="enrollmentForm">
-                        <option value="1">12.01.2021</option>
-                        <option value="2">02.02.2021</option>
-                        <option value="3">3.01.2021</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="enrollmentForm">Godzina:</label>
-                    <select name="" id="day" form="enrollmentForm">
-                        <option value="1">12:00</option>
-                        <option value="2">11:00</option>
-                        <option value="3">14:00</option>
-                    </select>
-                </div>
-            </div>
-        </form>
+                <input type="submit" value="Dalej">
+            </form>
+        </div>
     </div>
 </section>
 <footer>
@@ -69,5 +47,20 @@
         <li>tomasz.mizak@wpia.uni.lodz.pl</li>
     </ul>
 </footer>
+<script>
+    $('#vform').submit((event) => {
+        event.preventDefault();
+        $.ajax({
+            type: 'post',
+            url: 'php/validateEmail.php',
+            data: {
+                emailAddress:
+            },
+            success: (res) => {
+                alert(res);
+            }
+        })
+    })
+</script>
 </body>
 </html>

@@ -77,7 +77,7 @@
     border: 1px solid rgba(0,0,0,.1);
 }
 
-th,tr,button {
+.calendar_view button, .calendar_view th, .calendar_view tr {
     width: 50px;
     height: 50px;
 }
@@ -222,3 +222,30 @@ th,tr,button {
     margin: 3px;
 }
 
+/* show students */
+.students {
+    border-collapse: collapse;
+}
+
+.closeDeadlineStudents {
+    border: 0;
+    padding: 8px;
+    margin-bottom: 12px;
+}
+
+.students .closeDeadlineStudents {
+    background: black;
+    width: 200px;
+}
+
+.students th, td {
+    border: 2px solid whitesmoke;
+    background: black;
+    color: whitesmoke;;
+    padding: 12px;
+}
+
+.students td {
+    background: whitesmoke;
+    color: black;
+}

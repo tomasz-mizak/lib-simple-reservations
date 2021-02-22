@@ -44,4 +44,6 @@ if(isset($_POST["day"]) && isset($_POST['month']) && isset($_POST['year'])) {
     echo json_encode($t);
 }
 
+$link->close();
+
 ?>

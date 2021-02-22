@@ -63,6 +63,21 @@
                 </div>
                 <ul id="availableDeadlines"></ul>
             </div>
+            <div id="calendar_deadlineStudents">
+                <button class="closeDeadlineStudents" onclick="hideStudentsView()">Wróć</button>
+                <table class="students">
+                    <thead>
+                        <tr>
+                            <th>Lp.</th>
+                            <th>Imię</th>
+                            <th>Nazwisko</th>
+                            <th>Adres email</th>
+                            <th>Opcje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="students-container"></tbody>
+                </table>
+            </div>
         </div>
     </section>
     <footer>
@@ -154,7 +169,6 @@
             $('#singleTermForm').hide();
             $('#multipleTermForm').hide();
             $('.create_selection').show();
-
         };
 
         const cancelTermCreation = () => {
@@ -164,6 +178,37 @@
         const showTermCreation = () => {
             $('.create_deadline').show();
         };
+
+        const showStudentsView = (id) => {
+            $('.calendar_details').hide();
+            $('#calendar_deadlineStudents').show();
+            $.ajax({
+                type: 'post',
+                url: 'php/getDeadlineUsers.php',
+                data: { deadline_id: id },
+                success: (res) => {
+                    res = JSON.parse(res);
+                    res.forEach((v,i) => {
+                        $('#students-container').append(`
+                            <tr>
+                                <td>${i+1}</td>
+                                <td>#name</td>
+                                <td>#surname</td>
+                                <td><a href="mailto:${v.email}">${v.email}</a></td>
+                                <td>
+                                    <button onclick="">usuń z terminu</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                }
+            });
+        }
+
+        const hideStudentsView = () => {
+            $('.calendar_details').show();
+            $('#calendar_deadlineStudents').hide();
+        }
 
         const capitalize = (s) => {
             if (typeof s !== 'string') return ''
@@ -206,7 +251,7 @@
                                         <div class="deadline_info">Godzina: ${d.getHours()}:${d.getMinutes()}, zapisane osoby: ${registredStudents.length}/${v.max_student_count}</div>
                                         <div class="deadline_options">
                                             <button onclick="deleteDeadline(${v.id})">Usuń termin</button>
-                                            <button>Podgląd osób</button>
+                                            <button onclick="showStudentsView(${v.id})">Podgląd osób</button>
                                         </div>
                                     </div>
                                 </li>`);
@@ -259,12 +304,11 @@
                                 if (_day == day) {
                                     is_tagged = true;
                                 }
-                                let currDate = new Date();
-                                if(currDate.getDate() == day) {
-                                    is_current = true;
-                                }
                             }
-
+                            let currDate = new Date();
+                            if(currDate.getDate() == day) {
+                                is_current = true;
+                            }
                             if(is_tagged && is_current) {
                                 row += `<th><button class="current tagged" onclick="displayDayDescription(${day}, ${k})">${day}</button></th>`;
                             } else if(is_current) {
@@ -402,6 +446,7 @@
         $('.calendar_details').hide();
         $('#singleTermForm').hide();
         $('#multipleTermForm').hide();
+        $('#calendar_deadlineStudents').hide();
 
         workHours.forEach((v,i) => {
             $('#singleTermTime').append(`<option value="${i}">${v}</option>`)

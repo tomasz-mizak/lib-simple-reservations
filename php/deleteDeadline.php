@@ -36,10 +36,17 @@
                                 if($stmt = $link->prepare($sql)) {
                                     $stmt->bind_param('i', $deadline_id);
                                     if($stmt->execute()) {
-                                        echo json_encode([
-                                           'condition' => true,
-                                           'error_message' => "Usunięto termin oraz wysłano wiadomość informacyjną o usunięciu terminu do zarejestrowanych osób:" . $t
-                                        ]);
+                                        if(strlen($t)>0) {
+                                            echo json_encode([
+                                                'condition' => true,
+                                                'error_message' => "Usunięto termin oraz wysłano wiadomość informacyjną o usunięciu terminu do zarejestrowanych osób:" . $t
+                                            ]);
+                                        } else {
+                                            echo json_encode([
+                                                'condition' => true,
+                                                'error_message' => "Usunięto termin, nie było na nim żadnych zarejestrowanych osób"
+                                            ]);
+                                        }
                                     }
                                 }
                             }
@@ -48,12 +55,6 @@
                 }
             }
         }
-
-
-
-
-    } else {
-        // TODO
     }
 
     $link->close();
