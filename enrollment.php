@@ -24,25 +24,13 @@
     <h4><?= PAGE_SUBTITLE ?></h4>
 </header>
 <section>
-    <div class="selectTermCalendar">
-        <div class="view">
-            <button>Poniedziałek - 27.03.2022 (12/24)</button>
-            <button>Wtorek - 27.03.2022 (2/6)</button>
-            <button>Niedziela - 27.03.2022 (2/7)</button>
-            <button>Sobota - 27.03.2022 (3/1)</button>
-        </div>
-        <div class="options">
-            <button> << </button>
-            <button> >> </button>
-        </div>
-    </div>
     <div class="enrollment">
         <h1>Rezerwowanie terminu</h1>
         <div class="enrollment_view" id="enrollment_start">
             <h3>Krok 1/3</h3>
             <label for="emailAddress">Podaj uczelniany adres email</label>
             <input type="text" id="emailAddress">
-            <button onclick="verifyEmailAddress()">Przejdź dalej</button>
+            <button class="nbtn" onclick="verifyEmailAddress()">Przejdź dalej</button>
             <span class="error" id="emailAddressError"></span>
         </div>
         <div class="enrollment_view" id="enrollment_select_object">
@@ -52,32 +40,26 @@
             <label for="">Możesz wprowadzić dodatkową informację</label>
             <textarea rows="3" cols="40" id="additionalMessage"></textarea>
             <span class="error" id="objectError"></span>
-            <button onclick="verifyObject()">Przejdź do wyboru terminu</button>
+            <button class="nbtn" onclick="verifyObject()">Przejdź do wyboru terminu</button>
         </div>
         <div class="enrollment_view" id="enrollment_choose_deadline">
             <h3>Krok 3/3</h3>
             <label for="">Poniżej wybierz termin z listy dostępnych</label>
-
-            <div class="selectTermCalendar">
-                <button>Poniedziałek - 27.03.2022</button>
-            </div>
-
-            <div>
+            <div class="choose_deadline_view">
                 <select name="" id="dselect">
                     <option value="" disabled selected>Wybierz dzień</option>
-
                 </select>
-                <select name="" id="hselect">
+                <select name="" id="hselect" multiple>
                     <option value="" disabled selected>Wybierz godzinę</option>
-                    <option value="">9:00 (0/2)</option>
-                    <option value="">10:00 (0/2)</option>
-                    <option value="">11:00 (0/2)</option>
-                    <option value="">12:00 (0/2)</option>
-                    <option value="">13:00 (0/2)</option>
                 </select>
+                <small class="ctrlaria" id="hselect_aria">* przytrzymując przycisk CTRL, możesz wybrać kilka godzin na raz, maksymalna ilość dla rezerwacji dnia to 4h.</small>
             </div>
-            <input type="submit" value="Prześlij rezerwację">
-            <small >Na podany adres email, mogą przyjść informacje dotyczące zarezerwowanego terminu. Proszę obserwować w razie zmian.</small>
+            <button class="nbtn" onclick="sendRequest()">Prześlij rezerwację</button>
+            <span class="error" id="sendRequest"></span>
+        </div>
+        <div class="enrollment_view" id="request_result">
+            <h3>Udano!</h3>
+            <p>Potwierdzenie rezerwacji terminu zostało wysłane na adres mail@domain.com</p>
         </div>
     </div>
 </section>
@@ -99,37 +81,24 @@
     let addMessage;
     let terms = [];
     let f_terms = [];
-
-    $.ajax({
-        type: 'post',
-        url: 'php/getCurrentTimeDeadlines.php',
-        success: (res) => {
-            res = JSON.parse(res);
-            res.forEach((v,i) => {
-                res[i].date = new Date(v.date);
-            });
-            terms = res;
-
-            terms.forEach((v,i) => {
-                if(i==0) {
-                    f_terms.push(terms[i]);
-                } else {
-                    let condition = false;
-                    f_terms.forEach((e,k) => {
-                        v.date.setHours(12,0,0,0);
-                        e.date.setHours(12,0,0,0);
-                        if(v.date==e.date) {
-                            condition = true;
-                        }
-                    });
-                    if(!condition) f_terms.push(terms[i]);
-                    alert(JSON.stringify(f_terms))
-                }
-            });
-
+    let dateExist = (date) => {
+        for(let i = 0; i<f_terms.length; i++) {
+            let obj = f_terms[i].date;
+            if(date.getDate()==obj.getDate() && date.getMonth()==obj.getMonth() && date.getFullYear()==obj.getFullYear()) {
+                return true;
+            }
         }
-    })
-
+    }
+    let getDateHours = (date) => {
+        let t = [];
+        for(let i = 0; i<terms.length; i++) {
+            let obj = terms[i].date;
+            if(date.getDate()==obj.getDate() && date.getMonth()==obj.getMonth() && date.getFullYear()==obj.getFullYear()) {
+                t.push(terms[i]);
+            }
+        }
+        return t;
+    }
     function isEmail(email) {
         var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
         return regex.test(email);
@@ -147,6 +116,7 @@
                     if(res.status) {
                         $('#enrollment_start').hide();
                         $('#enrollment_select_object').show();
+                        email = $('#emailAddress').val();
                     } else {
                         $('#emailAddressError').html(res.info)
                     }
@@ -160,6 +130,7 @@
         let title = $('#objectTitle').val();
         let mess = $('#additionalMessage').val();
         if(title.length>0) {
+            objTitle = title;
             $('#objectError').html('');
             $('#enrollment_select_object').hide();
             $('#enrollment_choose_deadline').show();
@@ -172,28 +143,56 @@
                         res[i].date = new Date(v.date);
                     });
                     terms = res;
-                    terms.forEach((v,i) => {
-                        f_terms.forEach((e,k) => {
-                            if(!(e.date.getDate()==v.date.getDate()&&e.date.getFullYear()==v.date.getFullYear()&&e.date.getMonth()==v.date.getMonth())) {
-                                f_terms.push(v[i]);
-                            }
-                        })
+                    f_terms.push(terms[0]);
+                    for(let i = 0; i<terms.length; i++) {
+                        if(!dateExist(terms[i].date)) {
+                            f_terms.push(terms[i]);
+                        }
+                    }
+                    f_terms.sort((a,b) =>  a.date - b.date);
+                    f_terms.forEach((v,i) => {
+                        $('#dselect').append(`<option value="${i}">${v.date.getDate()}-${v.date.getMonth()+1}-${v.date.getFullYear()}</option>`);
                     });
-                    alert(JSON.stringify(res))
                 }
-            })
+            });
         } else {
             $('#objectError').html('Uzupełnij tytuł książki/czasopisma!');
         }
-    }
+    };
+    let sendRequest = () => {
+        let x = $('#hselect').val()
+        if(x.length<=4) {
+            $('#sendRequest').html('będę próbował wrzucić '+email+" oraz "+objTitle);
+            $.ajax({
+                type: 'post',
+                url: 'php/trySaveUser.php',
+                data: {
+                    deadlines: x
+                }
+            })
+        } else {
+            $('#sendRequest').html('Możesz wybrać maksymalnie 4 godziny z listy dostępnych!')
+        }
+    };
     $('#dselect').on('change', () => {
         $('#hselect').show();
+        $('#hselect_aria').show();
+        let i = $('#dselect').children("option:selected").val()
+        let t = getDateHours(f_terms[i].date);
+        $('#hselect').html('');
+        t.forEach((v,k) => {
+            console.log(v.date);
+            $('#hselect').append(`
+                <option value="${v.id}">${v.date.getHours()}:${v.date.getMinutes()}</option>
+            `);
+        });
 
     })
     // initialization
     $('#enrollment_select_object').hide();
     $('#enrollment_choose_deadline').hide();
     $('#hselect').hide();
+    $('#hselect_aria').hide();
 
 </script>
 </body>

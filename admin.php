@@ -236,7 +236,7 @@
                     month: currentMonth,
                     year: currentYear
                 },
-                success: function(response) {
+                success: (response) => {
                     response = JSON.parse(response);
                     response.forEach((v,i) => {
                         let d = new Date(v.date);

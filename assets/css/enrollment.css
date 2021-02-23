@@ -10,7 +10,7 @@
 .enrollment_view {
     padding: 12px;
     border: 1px solid rgba(0,0,0,.4);
-    max-width: 500px;
+    width: 400px;
 }
 
 .enrollment_view {
@@ -44,41 +44,39 @@
 .enrollment_view h3 {
     margin: 0 0 6px;
     padding: 0;
+    font-size: 2em;
 }
 
 .enrollment_view .error {
     color: red;
+    font-size: 1.1em;
 }
 
-.selectTermCalendar {
-    width: 300px;
-    border: 1px solid rgba(0,0,0,.3);
+.enrollment_view .nbtn {
+    background: whitesmoke;
+    border: 0;
+    font-size: .9em;
+    padding: 6px;
+}
+
+.choose_deadline_view {
+    width: 100%;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
     flex-flow: column wrap;
 }
 
-.selectTermCalendar .view {
-    background: rebeccapurple;
-    display: flex;
-    justify-content: center;
-    align-items: stretch;
-    flex-flow: column wrap;
-    width: inherit;
-
+#hselect, #dselect {
+    width: 250px;
+    font-size: 1em;
 }
 
-.selectTermCalendar .view button {
-    border: 0;
-    background: transparent;
-    outline: 0;
-
+#hselect {
+    height: 100px;
 }
 
-.selectTermCalendar .options {
-    background: red;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
+.ctrlaria {
+    color: crimson;
+    font-weight: 900;
 }
