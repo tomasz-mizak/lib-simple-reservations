@@ -182,6 +182,7 @@
         const showStudentsView = (id) => {
             $('.calendar_details').hide();
             $('#calendar_deadlineStudents').show();
+            $('#students-container').html('');
             $.ajax({
                 type: 'post',
                 url: 'php/getDeadlineUsers.php',
@@ -192,11 +193,11 @@
                         $('#students-container').append(`
                             <tr>
                                 <td>${i+1}</td>
-                                <td>#name</td>
-                                <td>#surname</td>
+                                <td>${v.first_name}</td>
+                                <td>${v.last_name}</td>
                                 <td><a href="mailto:${v.email}">${v.email}</a></td>
                                 <td>
-                                    <button onclick="">usuń z terminu</button>
+                                    <button onclick="">usuń</button>
                                 </td>
                             </tr>
                         `);

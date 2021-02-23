@@ -4,5 +4,81 @@
     justify-content: center;
     align-items: center;
     flex-flow: column wrap;
+    font-size: 1.2em;
+}
 
+.enrollment_view {
+    padding: 12px;
+    border: 1px solid rgba(0,0,0,.4);
+    max-width: 500px;
+}
+
+.enrollment_view {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-flow: column wrap;
+}
+
+.enrollment_view * {
+    margin-bottom: 6px;
+}
+
+.enrollment_view *:last-child {
+    margin: 0;
+}
+
+.enrollment_view input,textarea {
+    font-size: .93em;
+    width: 100%;
+}
+
+.enrollment_view textarea {
+    resize: none;
+}
+
+.enrollment_view small {
+    max-width: 300px;
+}
+
+.enrollment_view h3 {
+    margin: 0 0 6px;
+    padding: 0;
+}
+
+.enrollment_view .error {
+    color: red;
+}
+
+.selectTermCalendar {
+    width: 300px;
+    border: 1px solid rgba(0,0,0,.3);
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-flow: column wrap;
+}
+
+.selectTermCalendar .view {
+    background: rebeccapurple;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    flex-flow: column wrap;
+    width: inherit;
+
+}
+
+.selectTermCalendar .view button {
+    border: 0;
+    background: transparent;
+    outline: 0;
+
+}
+
+.selectTermCalendar .options {
+    background: red;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
 }
