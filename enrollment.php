@@ -97,6 +97,38 @@
     let email;
     let objTitle;
     let addMessage;
+    let terms = [];
+    let f_terms = [];
+
+    $.ajax({
+        type: 'post',
+        url: 'php/getCurrentTimeDeadlines.php',
+        success: (res) => {
+            res = JSON.parse(res);
+            res.forEach((v,i) => {
+                res[i].date = new Date(v.date);
+            });
+            terms = res;
+
+            terms.forEach((v,i) => {
+                if(i==0) {
+                    f_terms.push(terms[i]);
+                } else {
+                    let condition = false;
+                    f_terms.forEach((e,k) => {
+                        v.date.setHours(12,0,0,0);
+                        e.date.setHours(12,0,0,0);
+                        if(v.date==e.date) {
+                            condition = true;
+                        }
+                    });
+                    if(!condition) f_terms.push(terms[i]);
+                    alert(JSON.stringify(f_terms))
+                }
+            });
+
+        }
+    })
 
     function isEmail(email) {
         var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
@@ -137,8 +169,17 @@
                 success: (res) => {
                     res = JSON.parse(res);
                     res.forEach((v,i) => {
-                        res[i].date = new Date(v.date)
+                        res[i].date = new Date(v.date);
                     });
+                    terms = res;
+                    terms.forEach((v,i) => {
+                        f_terms.forEach((e,k) => {
+                            if(!(e.date.getDate()==v.date.getDate()&&e.date.getFullYear()==v.date.getFullYear()&&e.date.getMonth()==v.date.getMonth())) {
+                                f_terms.push(v[i]);
+                            }
+                        })
+                    });
+                    alert(JSON.stringify(res))
                 }
             })
         } else {
