@@ -18,7 +18,8 @@ function sendMail($to, $title, $message) {
         $mail->Username   = 'webmaster@wpia.uni.lodz.pl';                     // SMTP username
         $mail->Password   = 'Haslo123';                               // SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
-        $mail->Port       = 587;                                    // TCP port to connect to, use 465 for `PHPMailer::ENCRYPTION_SMTPS` above
+        $mail->Port       = 587;
+        $mail->CharSet = "UTF-8";
 
         //Recipients
         $mail->setFrom('webmaster@wpia.uni.lodz.pl', 'Biblioteka WPiA UŁ');
@@ -27,14 +28,17 @@ function sendMail($to, $title, $message) {
 
         // Content
         $mail->isHTML(true);                                  // Set email format to HTML
-        $mail->Subject = 'Here is the subject';
-        $mail->Body    = 'This is the HTML message body <b>in bold!</b>';
-        $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+        $mail->Subject = '[Biblioteka WPiA] '.$title;
+
+        $message .= '<br><br><hr><ul><li>W sprawie problemów technicznych proszę pisać na adres <a href="mailto:tomasz.mizak@wpia.uni.lodz.pl">tomasz.mizak@wpia.uni.lodz.pl</a></li><li>W sprawach związanych z rezerwacją, proszę pisać na adres <a href="mailto:biblioteka@wpia.uni.lodz.pl">biblioteka@wpia.uni.lodz.pl</a></li></ul>';
+
+        $mail->Body    = $message;
+        $mail->AltBody = $message;
 
         $mail->send();
-        echo 'Message has been sent';
+        return true;
     } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        return false;
     }
 }
 

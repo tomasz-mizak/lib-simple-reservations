@@ -5,7 +5,7 @@ $datetime1 = new DateTime();
 $datetime2 = new DateTime();
 $datetime2->add(new DateInterval('P10D'));
 $datetime2->setTime(23,59,59);
-$sql = "SELECT deadlines.*, (SELECT COUNT(*) FROM saved_users WHERE saved_users.deadline_id = deadlines.id) AS total FROM deadlines WHERE date BETWEEN '".$datetime1->format("Y-m-d H:i:s")."' AND '".$datetime2->format("Y-m-d H:i:s")."'";
+$sql = "SELECT deadlines.*, (SELECT COUNT(*) FROM saved_users WHERE saved_users.deadline_id = deadlines.id and saved_users.active = 1) AS total FROM deadlines WHERE date BETWEEN '".$datetime1->format("Y-m-d H:i:s")."' AND '".$datetime2->format("Y-m-d H:i:s")."'";
 if($stmt = $link->prepare($sql)) {
     if($stmt->execute()) {
         $stmt->bind_result($id, $author_id, $date, $max_student_count, $created_at, $total);

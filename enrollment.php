@@ -57,10 +57,7 @@
             <button class="nbtn" onclick="sendRequest()">Prześlij rezerwację</button>
             <span class="error" id="sendRequest"></span>
         </div>
-        <div class="enrollment_view" id="request_result">
-            <h3>Udano!</h3>
-            <p>Potwierdzenie rezerwacji terminu zostało wysłane na adres mail@domain.com</p>
-        </div>
+        <div class="enrollment_view" id="request_result"></div>
     </div>
 </section>
 <footer>
@@ -162,12 +159,22 @@
     let sendRequest = () => {
         let x = $('#hselect').val()
         if(x.length<=4) {
-            $('#sendRequest').html('będę próbował wrzucić '+email+" oraz "+objTitle);
             $.ajax({
                 type: 'post',
                 url: 'php/trySaveUser.php',
                 data: {
-                    deadlines: x
+                    deadlines: x,
+                    email: email
+                },
+                success: (res) => {
+                    res = JSON.parse(res);
+                    if(res.status) {
+                        $('#enrollment_choose_deadline').hide();
+                        $('#request_result').show();
+                        $('#request_result').html(res.info);
+                    } else {
+                        $('#sendRequest').html(res.info);
+                    }
                 }
             })
         } else {
@@ -181,7 +188,6 @@
         let t = getDateHours(f_terms[i].date);
         $('#hselect').html('');
         t.forEach((v,k) => {
-            console.log(v.date);
             $('#hselect').append(`
                 <option value="${v.id}">${v.date.getHours()}:${v.date.getMinutes()}</option>
             `);
@@ -193,6 +199,8 @@
     $('#enrollment_choose_deadline').hide();
     $('#hselect').hide();
     $('#hselect_aria').hide();
+    $('#request_result').hide();
+
 
 </script>
 </body>
