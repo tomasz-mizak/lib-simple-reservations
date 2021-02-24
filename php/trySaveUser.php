@@ -11,7 +11,7 @@
         $datetime2 = new DateTime();
         $datetime2->add(new DateInterval('P10D'));
         $datetime2->setTime(23,59,59);
-        $sql = "SELECT deadlines.id, deadlines.max_student_count, (SELECT COUNT(*) FROM saved_users WHERE saved_users.deadline_id = deadlines.id) AS total FROM deadlines WHERE date BETWEEN '".$datetime1->format("Y-m-d H:i:s")."' AND '".$datetime2->format("Y-m-d H:i:s")."'";
+        $sql = "SELECT deadlines.id, deadlines.max_student_count, (SELECT COUNT(*) FROM saved_users WHERE saved_users.deadline_id = deadlines.id AND active = 1) AS total FROM deadlines WHERE date BETWEEN '".$datetime1->format("Y-m-d H:i:s")."' AND '".$datetime2->format("Y-m-d H:i:s")."'";
         if($stmt = $link->prepare($sql)) {
             if ($stmt->execute()) {
                 $stmt->bind_result($id, $max_student_count, $total);
@@ -32,13 +32,15 @@
                 for($k = 0; $k<count($avaliable_deadlines); $k++) {
                     $obj = $avaliable_deadlines[$k];
                     if($obj['id']==$deadline_id) {
-                        $safe++;
-                        break;
+                        // deadline exist
+                        if($obj['total']<$obj['max_student_count']) { // check limit
+                            $safe++;
+                            break;
+                        }
                     }
                 }
             }
         }
-        //echo $safe."==".count($posted_deadlines);
         if($safe==count($posted_deadlines)) {
             $email = $_POST['email'];
             if(!empty(trim($email))) {

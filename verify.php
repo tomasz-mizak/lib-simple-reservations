@@ -18,6 +18,8 @@
 <section>
     <?php
 
+    require_once "php/sendMail.php";
+
     if(isset($_GET['os_id'])&&!empty($_GET['os_id'])&&isset($_GET['hash'])&&!empty($_GET['hash'])) {
 
         require_once "php/dbconn.php";
@@ -25,25 +27,29 @@
         $user_id = $_GET['os_id'];
         $hash = $_GET['hash'];
 
-        $sql = "SELECT saved_users.id, saved_users.deadline_id, deadlines.date, deadlines.max_student_count FROM saved_users, deadlines WHERE active = 0 AND hash = ? AND os_id = ? AND deadlines.id = saved_users.deadline_id";
+        $sql = "SELECT saved_users.id, saved_users.deadline_id, deadlines.date, deadlines.max_student_count, students.email FROM saved_users, deadlines, students WHERE saved_users.active = 0 AND saved_users.hash = ? AND saved_users.os_id = ? AND deadlines.id = saved_users.deadline_id AND students.os_id = saved_users.os_id";
+        $param_email = '';
         if($stmt=$link->prepare($sql)) {
             $stmt->bind_param('si',$hash,$user_id);
             if($stmt->execute()) {
-                $stmt->bind_result($save_id,$deadline_id, $date, $max_student_count);
+                $stmt->bind_result($save_id,$deadline_id, $date, $max_student_count, $email);
                 $t = [];
                 while ($stmt->fetch()) {
                     $e = [
                         'save_id' => $save_id,
                         'deadline_id' => $deadline_id,
                         'date' => $date,
-                        'max_student_count' => $max_student_count
+                        'max_student_count' => $max_student_count,
                     ];
+                    $param_email = $email;
                     array_push($t,$e);
                 }
                 if(count($t)==0) {
-                    echo '<h3>Wygląda na to, że ta rezerwacja musiała już zostać potwierdzona!</h3><a href="enrollment.php">Przejdź do ponownej rejestracji terminu</a>';
+                    echo '<h3>Wygląda na to, że ta rezerwacja musiała już zostać potwierdzona!</h3>';
                 }
                 // check deadline limit
+                $success = 0;
+                $datestring = '';
                 for($i=0;$i<count($t);$i++) {
                     $obj = $t[$i];
                     $sql = "SELECT count(*) as amount FROM saved_users WHERE deadline_id = ? and active = 1";
@@ -60,6 +66,8 @@
                                         $stmt->bind_param('i',$obj['save_id']);
                                         if($stmt->execute()) {
                                             echo '<h4>Zweryfikowano termin - '.$obj["date"].'</h4><br>';
+                                            $success++;
+                                            $datestring.=$obj['date'].'<br>';
                                         }
                                     }
                                 } else {
@@ -68,7 +76,6 @@
                                         $stmt->bind_param('i',$obj['save_id']);
                                         if($stmt->execute()) {
                                             echo '<h4>Zabrakło miejsc na termin - '.$obj["date"].'</h4><br>';
-                                            echo '<a href="enrollment.php">Przejdź do ponownej rejestracji terminu</a>';
                                         }
                                     }
                                 }
@@ -76,6 +83,12 @@
                         }
                     }
                 }
+                if($success>0) {
+                    echo '<h4>Na adres '.$param_email.' zostanie wysłane potwierdzenie rezerwacji terminu/terminów.</h4>';
+                    $mess = "Potwierdzenie rezerwacji poniższych terminów:<br>".$datestring;
+                    sendMail($param_email,"Potwierdzenie rezerwacji terminu/terminów",$mess);
+                }
+                echo '<a href="enrollment.php">Przejdź do ponownej rejestracji terminu</a>';
             }
         }
 
