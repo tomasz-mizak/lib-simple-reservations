@@ -39,6 +39,7 @@ header * {
 }
 
 section {
+    position: relative;
     padding: 62px;
 
     flex: 1;
@@ -50,6 +51,17 @@ section {
 
 section div {
     margin-bottom: 32px;
+}
+
+#accpanel {
+    position: absolute;
+    height: 100px;
+    width: 300px;
+    display: flex;
+    flex-flow: column wrap;
+    transform: translate(calc(100vw - 350px),150px);
+    color: black;
+    padding: 12px;
 }
 
 .message_box {

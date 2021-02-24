@@ -61,7 +61,7 @@
                                 $stmt->bind_result($amount);
                                 $stmt->fetch();
                                 if($amount<$obj['max_student_count']) {
-                                    $sql = "UPDATE saved_users SET hash = '', active = 1 WHERE id = ?";
+                                    $sql = "UPDATE saved_users SET hash = '', active = 1, verify_time = NOW()  WHERE id = ?";
                                     if($stmt=$link->prepare($sql)) {
                                         $stmt->bind_param('i',$obj['save_id']);
                                         if($stmt->execute()) {

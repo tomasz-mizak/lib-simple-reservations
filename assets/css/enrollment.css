@@ -48,8 +48,8 @@
 }
 
 .enrollment_view .error {
-    color: red;
-    font-size: 1.1em;
+    color: crimson;
+    font-size: .9em;
 }
 
 .enrollment_view .nbtn {
@@ -77,6 +77,6 @@
 }
 
 .ctrlaria {
-    color: crimson;
+    color: darkcyan;
     font-weight: 900;
 }

@@ -15,21 +15,23 @@
             if($stmt->execute()) {
                 $stmt->store_result();
                 $stmt->bind_result($date);
+                $stmt->fetch();
                 // delete deadline from table
                 $sql = "DELETE FROM deadlines WHERE id=?";
                 if($stmt = $link->prepare($sql)) {
                     $stmt->bind_param('i', $param_id);
                     if($stmt->execute()) {
                         // send notification to students
-                        $sql = "SELECT * FROM saved_users WHERE deadline_id=?";
+                        //$sql = "SELECT id, deadline_id, ema FROM saved_users WHERE deadline_id=? AND active = 1";
+                        $sql = "SELECT saved_users.id, saved_users.deadline_id, students.email FROM saved_users, students WHERE saved_users.deadline_id=? AND saved_users.active = 1 AND saved_users.os_id = students.os_id";
                         if($stmt = $link->prepare($sql)) {
                             $stmt->bind_param('i', $param_id);
                             if($stmt->execute()) {
-                                $stmt->bind_result($id, $deadline_id, $email, $created_at);
+                                $stmt->bind_result($id, $deadline_id, $email);
                                 $t = "";
                                 while($stmt->fetch()) {
                                     $t .= $email . ', ';
-                                    sendMail($email, "Usunięto Twój termin", "Przepraszamy!");
+                                    sendMail($email, "Usunięcie terminu!", "Termin na który byłeś zarejestrowany - ".$date.", został usunięty.<br><a href='http://localhost/biblioteka/enrollment.php'>Zapisz się na inny termin</a>");
                                 }
                                 // delete student saves
                                 $sql = "DELETE FROM saved_users WHERE deadline_id=?";

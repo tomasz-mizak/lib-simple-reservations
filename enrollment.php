@@ -52,7 +52,7 @@
                 <select name="" id="hselect" multiple>
                     <option value="" disabled selected>Wybierz godzinę</option>
                 </select>
-                <small class="ctrlaria" id="hselect_aria">* przytrzymując przycisk CTRL, możesz wybrać kilka godzin na raz, maksymalna ilość dla rezerwacji dnia to 4h.</small>
+                <small class="ctrlaria" id="hselect_aria">* przytrzymując przycisk CTRL, możesz wybrać kilka godzin na raz, maksymalna ilość rezerwacji na dzień to 4h.</small>
             </div>
             <button class="nbtn" onclick="sendRequest()">Prześlij rezerwację</button>
             <span class="error" id="sendRequest"></span>
@@ -78,6 +78,11 @@
     let addMessage;
     let terms = [];
     let f_terms = [];
+    const padLeadingZeros = (num, size) => {
+        var s = num+"";
+        while (s.length < size) s = "0" + s;
+        return s;
+    }
     let dateExist = (date) => {
         for(let i = 0; i<f_terms.length; i++) {
             let obj = f_terms[i].date;
@@ -123,6 +128,7 @@
             $('#emailAddressError').html('Został podany błędny adres email!')
         }
     }
+    const weekDayNames = ['poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota', 'niedziela'];
     const verifyObject = () => {
         let title = $('#objectTitle').val();
         let mess = $('#additionalMessage').val();
@@ -148,7 +154,7 @@
                     }
                     f_terms.sort((a,b) =>  a.date - b.date);
                     f_terms.forEach((v,i) => {
-                        $('#dselect').append(`<option value="${i}">${v.date.getDate()}-${v.date.getMonth()+1}-${v.date.getFullYear()}</option>`);
+                        $('#dselect').append(`<option value="${i}">${weekDayNames[v.date.getDay()-1]} - ${v.date.getDate()}-${v.date.getMonth()+1}-${v.date.getFullYear()}</option>`);
                     });
                 }
             });
@@ -167,6 +173,7 @@
                     email: email
                 },
                 success: (res) => {
+                    console.log(res)
                     res = JSON.parse(res);
                     if(res.status) {
                         $('#enrollment_choose_deadline').hide();
@@ -186,10 +193,11 @@
         $('#hselect_aria').show();
         let i = $('#dselect').children("option:selected").val()
         let t = getDateHours(f_terms[i].date);
+        t.sort((a,b) => a.date - b.date);
         $('#hselect').html('');
         t.forEach((v,k) => {
             $('#hselect').append(`
-                <option value="${v.id}">${v.date.getHours()}:${v.date.getMinutes()}</option>
+                <option value="${v.id}">${padLeadingZeros(v.date.getHours(),2)}:${padLeadingZeros(v.date.getMinutes(),2)}</option>
             `);
         });
 

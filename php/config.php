@@ -8,4 +8,6 @@
     define('PAGE_TITLE', 'System rezerwacji terminów');
     define('PAGE_SUBTITLE', 'Wydział Prawa i Administracji Uniwersytetu Łódzkiego');
 
+    define('WEBSITE_URL', 'http://localhost/biblioteka');
+
 ?>

@@ -13,16 +13,7 @@
     <div class="x"></div>
 
     <script>
-        $.ajax({
-            type: 'post',
-            url: 'php/getCurrenttimeDeadlines.php',
-            success: (res) => {
-                res = JSON.parse(res);
-                res.forEach((v,i) => {
-                    $('.x').append(`<p>${v.id} - ${v.date}</p>`);
-                });
-            }
-        });
+
     </script>
 
 </body>

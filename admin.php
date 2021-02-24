@@ -24,6 +24,11 @@
         <h1><?= PAGE_TITLE ?></h1>
         <h4><?= PAGE_SUBTITLE ?></h4>
     </header>
+    <div id="accpanel">
+        <p><b>Konto:</b> <?= $_SESSION['username'] ?></p>
+        <button>Wyloguj</button>
+        <button>Zmień hasło</button>
+    </div>
     <section>
         <div class="message_box">
             Witaj <?= $_SESSION['first_name'] ?>, w tym panelu, możesz dodać nowe terminy do kalendarza.<br>
@@ -72,6 +77,8 @@
                             <th>Imię</th>
                             <th>Nazwisko</th>
                             <th>Adres email</th>
+                            <th>Czas rezerwacji</th>
+                            <th>Czas weryfikacji</th>
                             <th>Opcje</th>
                         </tr>
                     </thead>
@@ -196,8 +203,10 @@
                                 <td>${v.first_name}</td>
                                 <td>${v.last_name}</td>
                                 <td><a href="mailto:${v.email}">${v.email}</a></td>
+                                <td>${v.created_at}</td>
+                                <td>${v.verify_time}</td>
                                 <td>
-                                    <button onclick="">usuń</button>
+                                    <button onclick="alert('opcja nie jest dostępna w tej wersji')">usuń</button>
                                 </td>
                             </tr>
                         `);
@@ -226,6 +235,12 @@
             $('.calendar_details').hide();
         };
 
+        const padLeadingZeros = (num, size) => {
+            var s = num+"";
+            while (s.length < size) s = "0" + s;
+            return s;
+        }
+
         const loadDayDeadlines = () => {
             $('#availableDeadlines').html('');
             $.ajax({
@@ -238,6 +253,7 @@
                 },
                 success: (response) => {
                     response = JSON.parse(response);
+                    response.sort((a,b) =>  new Date(a.date) - new Date(b.date));
                     response.forEach((v,i) => {
                         let d = new Date(v.date);
                         $.ajax({
@@ -249,7 +265,7 @@
                                 $('#availableDeadlines').append(`
                                 <li>
                                     <div class="deadline">
-                                        <div class="deadline_info">Godzina: ${d.getHours()}:${d.getMinutes()}, zapisane osoby: ${registredStudents.length}/${v.max_student_count}</div>
+                                        <div class="deadline_info">Godzina: ${padLeadingZeros(d.getHours(),2)}:${padLeadingZeros(d.getMinutes(),2)}, zapisane osoby: ${registredStudents.length}/${v.max_student_count}</div>
                                         <div class="deadline_options">
                                             <button onclick="deleteDeadline(${v.id})">Usuń termin</button>
                                             <button onclick="showStudentsView(${v.id})">Podgląd osób</button>
@@ -306,8 +322,9 @@
                                     is_tagged = true;
                                 }
                             }
+
                             let currDate = new Date();
-                            if(currDate.getDate() == day) {
+                            if(currDate.getDate() == day && (currDate.getMonth()+1)==currentMonth) {
                                 is_current = true;
                             }
                             if(is_tagged && is_current) {
@@ -337,7 +354,7 @@
                 currentYear++;
                 currentMonth = 1;
             } else {
-                currentMonth++;
+                currentMonth = currentMonth + 1;
             }
             calendar_updateView();
         };
@@ -347,7 +364,7 @@
                 currentYear--;
                 currentMonth = 12;
             } else {
-                currentMonth--;
+                currentMonth = currentMonth - 1;
             }
             calendar_updateView();
         };
@@ -360,6 +377,7 @@
                     url: 'php/deleteDeadline.php',
                     data: { deadline_id: id },
                     success: (res) => {
+                        console.log(res);
                         res = JSON.parse(res);
                         if(res.condition) {
                             alert(res.error_message);
@@ -397,7 +415,7 @@
                         cancelTermCreation();
                         loadDayDeadlines();
                     } else {
-                        alert(resonse.error_message);
+                        alert(response.error_message);
                     }
                 },
                 error: function() {
