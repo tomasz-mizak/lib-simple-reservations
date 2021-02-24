@@ -24,15 +24,14 @@
         <h1><?= PAGE_TITLE ?></h1>
         <h4><?= PAGE_SUBTITLE ?></h4>
     </header>
-    <div id="accpanel">
-        <p><b>Konto:</b> <?= $_SESSION['username'] ?></p>
-        <button>Wyloguj</button>
-        <button>Zmień hasło</button>
-    </div>
     <section>
         <div class="message_box">
-            Witaj <?= $_SESSION['first_name'] ?>, w tym panelu, możesz dodać nowe terminy do kalendarza.<br>
-            <br><br>
+            Witaj w panelu administracyjnym, w tym miejscu możesz zarządzać terminami rezerwacji oraz swoim kontem.
+        </div>
+        <div id="accpanel">
+            <p><b>Konto:</b> <?= $_SESSION['username'] ?></p>
+            <a href="php/logout.php">Wyloguj</a>
+            <a href="chpsswd.php">Zmień hasło</a>
         </div>
         <div class="calendar">
             <div class="calendar_view">
