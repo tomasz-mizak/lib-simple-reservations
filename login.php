@@ -1,5 +1,7 @@
 <?php
 
+    require_once "php/config.php";
+
     session_start();
 
     $login_error = "";
