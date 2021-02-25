@@ -1,3 +1,9 @@
+<?php
+
+    require_once "php/config.php";
+
+?>
+
 <!doctype html>
 <html lang="pl">
 <head>
@@ -12,8 +18,8 @@
 </head>
 <body>
 <header>
-    <h1>System rezerwacji terminów</h1>
-    <h4>Wydział Prawa i Administracji Uniwersytetu Łódzkiego</h4>
+    <h1><?= PAGE_TITLE ?></h1>
+    <h4><?= PAGE_SUBTITLE ?></h4>
 </header>
 <section>
     <?php
@@ -84,9 +90,13 @@
                     }
                 }
                 if($success>0) {
+                    // send to student
                     echo '<h4>Na adres '.$param_email.' zostanie wysłane potwierdzenie rezerwacji terminu/terminów.</h4>';
                     $mess = "Potwierdzenie rezerwacji poniższych terminów:<br>".$datestring;
                     sendMail($param_email,"Potwierdzenie rezerwacji terminu/terminów",$mess);
+                    // send info to admins
+                    $mess = $param_email." zapisał się na poniższe terminy:<br>".$datestring;
+                    sendMail(REGISTRATION_EMAIL,"Ktoś się zapisał na termin/terminy!",$mess);
                 }
                 echo '<a href="enrollment.php">Przejdź do ponownej rejestracji terminu</a>';
             }

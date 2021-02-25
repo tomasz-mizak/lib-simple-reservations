@@ -29,8 +29,8 @@
 </head>
 <body>
 <header>
-    <h1>System rezerwacji terminów</h1>
-    <h4>Wydział Prawa i Administracji Uniwersytetu Łódzkiego</h4>
+    <h1><?= PAGE_TITLE ?></h1>
+    <h4><?= PAGE_SUBTITLE ?></h4>
 </header>
 <section>
     <div class="login">

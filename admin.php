@@ -264,7 +264,7 @@
                                 $('#availableDeadlines').append(`
                                 <li>
                                     <div class="deadline">
-                                        <div class="deadline_info">Godzina: ${padLeadingZeros(d.getHours(),2)}:${padLeadingZeros(d.getMinutes(),2)}, zapisane osoby: ${registredStudents.length}/${v.max_student_count}</div>
+                                        <div class="deadline_info"><b>Godzina: ${padLeadingZeros(d.getHours(),2)}:${padLeadingZeros(d.getMinutes(),2)}, zapisane osoby: ${registredStudents.length}/${v.max_student_count}</b><br>Stworzony przez: ${v.first_name} ${v.last_name} [${v.author_id}]</div>
                                         <div class="deadline_options">
                                             <button onclick="deleteDeadline(${v.id})">Usuń termin</button>
                                             <button onclick="showStudentsView(${v.id})">Podgląd osób</button>
