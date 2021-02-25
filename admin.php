@@ -89,13 +89,13 @@
     <footer>
         <ul>
             <li><b>Ważne linki</b></li>
-            <li>Strona główna WPiA</li>
-            <li>Strona biblioteki WPiA</li>
+            <li><a href="https://www.wpia.uni.lodz.pl" target="_blank">Strona główna WPiA</a></li>
+            <li><a href="https://www.wpia.uni.lodz.pl/struktura/biblioteka" target="_blank">Strona biblioteki WPiA</a></li>
         </ul>
         <ul>
             <li><b>Kontakt</b></li>
-            <li>tel. 42 635 46 25</li>
-            <li>tomasz.mizak@wpia.uni.lodz.pl</li>
+            <li><a href="tel:426354625">tel. 42 635 46 25</a></li>
+            <li><a href="mailto:tomasz.mizak@wpia.uni.lodz.pl">tomasz.mizak@wpia.uni.lodz.pl</a></li>
         </ul>
     </footer>
     <div class="create_deadline">

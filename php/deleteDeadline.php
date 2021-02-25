@@ -3,6 +3,7 @@
     require_once "sesscheck.php";
     require_once "dbconn.php";
     require_once "sendMail.php";
+    require_once "config.php";
 
     if(isset($_POST['deadline_id'])) {
 
@@ -31,7 +32,7 @@
                                 $t = "";
                                 while($stmt->fetch()) {
                                     $t .= $email . ', ';
-                                    sendMail($email, "Usunięcie terminu!", "Termin na który byłeś zarejestrowany - ".$date.", został usunięty.<br><a href='http://localhost/biblioteka/enrollment.php'>Zapisz się na inny termin</a>");
+                                    sendMail($email, "Usunięcie terminu!", "Termin na który byłeś zarejestrowany - ".$date.", został usunięty.<br><a href='".WEBSITE_URL."/enrollment.php'>Zapisz się na inny termin</a>");
                                 }
                                 // delete student saves
                                 $sql = "DELETE FROM saved_users WHERE deadline_id=?";
