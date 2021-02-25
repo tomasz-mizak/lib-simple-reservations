@@ -12,6 +12,7 @@ require_once "php/sesscheck.php";
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -27,7 +28,11 @@ require_once "php/sesscheck.php";
         <a href="admin.php">Wróć do poprzedniego widoku</a>
     </div>
     <div class="chpsswd">
-        <h3>Zmiana hasła do konta <?= $_SESSION['username'] ?></h3>
+        <h3>Zmiana hasła</h3>
+        <div>
+            <label for="email">Adres email:</label>
+            <input id="email" type="email">
+        </div>
         <div>
             <label for="oldPassword">Stare hasło:</label>
             <input id="oldPassword" type="password">
@@ -41,13 +46,54 @@ require_once "php/sesscheck.php";
             <input id="repeatNewPassword" type="password">
         </div>
         <div>
-            <button>Zmień hasło</button>
+            <button onclick="sendRequest()">Zmień hasło</button>
         </div>
         <div>
-            <label class="errorLabel"></label>
+            <label id="errorLabel" style="color: crimson;"></label>
         </div>
     </div>
 </section>
+<script>
+    function isEmail(email) {
+        var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        return regex.test(email);
+    }
+    const sendRequest = () => {
+        const email = $('#email').val();
+        const oldPassword = $('#oldPassword').val();
+        const newPassword = $('#newPassword').val();
+        const repeatNewPassword = $('#repeatNewPassword').val();
+        if(isEmail(email)) {
+            if(oldPassword.length>0) {
+                if(newPassword.length>4) {
+                    if(newPassword==repeatNewPassword) {
+                        $.ajax({
+                            type: 'post',
+                            url: 'php/changePassword.php',
+                            data: {
+                                email: email,
+                                oldPassword: oldPassword,
+                                newPassword: newPassword
+                            },
+                            success: (res) => {
+                                $('#errorLabel').html(res)
+                            }
+                        })
+                    } else {
+                        $('#errorLabel').html('Hasła się nie zgadzają!')
+                    }
+                } else {
+                    $('#errorLabel').html('Minimalna ilość znaków nowego hasła to 4!')
+                }
+            } else {
+                $('#errorLabel').html('Błędne stare hasło!')
+            }
+        } else {
+
+            $('#errorLabel').html('Wpisz poprawny adres email!')
+        }
+    }
+</script>
 <footer>
     <ul>
         <b>Ważne linki</b>
