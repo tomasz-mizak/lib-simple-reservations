@@ -97,7 +97,7 @@
                     $mess = "Potwierdzenie rezerwacji poniższych terminów:<br>".$datestring;
                     sendMail($param_email,"Potwierdzenie rezerwacji terminu/terminów",$mess);
                     // send info to admins
-                    $mess = $param_email." zapisał się na poniższe terminy:<br>".$datestring."<br>Wskazał poniższe materiały:<br><div style='display: flex;flex-flow: column wrap;'>".$param_materials."</div><br><a href='".WEBSITE_URL."/admin.php'>Kliknij tu by przejść do panelu administracyjnego</a>";
+                    $mess = $param_email." zapisał się na poniższe terminy:<br>".$datestring."<br>Wskazał poniższe materiały:<br><div>".$param_materials."</div><br><a href='".WEBSITE_URL."/admin.php'>Kliknij tu by przejść do panelu administracyjnego</a>";
                     sendMail(REGISTRATION_EMAIL,"Ktoś się zapisał na termin/terminy!",$mess);
                 }
                 echo '<a href="enrollment.php">Przejdź do ponownej rejestracji terminu</a>';
