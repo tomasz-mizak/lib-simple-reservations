@@ -27,6 +27,7 @@
     <div class="enrollment">
         <h1>Rezerwowanie terminu</h1>
         <div class="enrollment_view" id="enrollment_start">
+            <small><b class="target_step">Podaj email</b> > Uzupełnij informacje > Wybierz termin</small>
             <h3>Krok 1/3</h3>
             <label for="emailAddress">Podaj uczelniany adres email</label>
             <input type="text" id="emailAddress">
@@ -34,15 +35,22 @@
             <span class="error" id="emailAddressError"></span>
         </div>
         <div class="enrollment_view" id="enrollment_select_object">
+            <small>Podaj email > <b class="target_step">Uzupełnij informacje</b> > Wybierz termin</small>
             <h3>Krok 2/3</h3>
-            <label for="">Wpisz tytuł książki/czasopisma</label>
-            <input type="text" id="objectTitle">
-            <label for="">Możesz wprowadzić dodatkową informację</label>
-            <textarea rows="3" cols="40" id="additionalMessage"></textarea>
+            <div class="group">
+                <p>Zamówienie materiałów do czytelni - wybierz jakie książki/czasopisma chcesz zamówić (użyj przycisków poniżej).</p>
+                <small>Czytelnicy mogą zamówić maksymalnie 10 egz. materiałów.</small>
+            </div>
+            <ul id="orderlist"></ul>
+            <div class="optgroup">
+                <button onclick="showAddBook()">Dodaj książkę</button>
+                <button onclick="showAddMagazine()">Dodaj czasopismo</button>
+            </div>
             <span class="error" id="objectError"></span>
             <button class="nbtn" onclick="verifyObject()">Przejdź do wyboru terminu</button>
         </div>
         <div class="enrollment_view" id="enrollment_choose_deadline">
+            <small>Podaj email > Uzupełnij informacje > <b class="target_step">Wybierz termin</b></small>
             <h3>Krok 3/3</h3>
             <label for="">Poniżej wybierz termin z listy dostępnych</label>
             <div class="choose_deadline_view">
@@ -58,6 +66,66 @@
             <span class="error" id="sendRequest"></span>
         </div>
         <div class="enrollment_view" id="request_result"></div>
+    </div>
+    <div id="book">
+        <p>W tym widoku uzupełnij dane książki, której egzamplarz potrzebujesz; oczywiście możesz cofnąć się do poprzedniego widoku, klikając przycisk anuluj.</p>
+        <div>
+            <label for="">Wpisz tytuł książki</label>
+            <input type="text" id="bookTitle">
+        </div>
+        <div>
+            <label for="">Autor</label>
+            <input type="text" id="bookAuthor">
+        </div>
+        <div>
+            <label for="">Sygnatura</label>
+            <input type="text" id="bookSignature">
+        </div>
+        <div>
+            <label for="">Tytuł rozdziału (nr rozdziału)</label>
+            <input type="text" id="bookChapter">
+        </div>
+        <div>
+            <label for="">Zakres stron</label>
+            <input type="text" id="bookPages">
+        </div>
+        <div class="noalign">
+            <button onclick="addBook()">Akceptuj i dodaj</button>
+            <button onclick="addCancel()">Anuluj</button>
+        </div>
+        <div class="disp_erro" id="boo_erro"></div>
+    </div>
+    <div id="magazine">
+        <p>W tym widoku uzupełnij dane czasopisma, którego egzamplarz potrzebujesz; oczywiście możesz cofnąć się do poprzedniego widoku, klikając przycisk anuluj.</p>
+        <div>
+            <label for="">Wpisz tytuł czasopisma:</label>
+            <input type="text" id="magazineTitle">
+        </div>
+        <div>
+            <label for="">Autor artykułu</label>
+            <input type="text" id="magazineAuthor">
+        </div>
+        <div>
+            <label for="">Tytuł artykułu</label>
+            <input type="text" id="magazineChapterTitle">
+        </div>
+        <div>
+            <label for="">Sygnatura</label>
+            <input type="text" id="magazineSignature">
+        </div>
+        <div>
+            <label for="">Rok, numer</label>
+            <input type="text" id="magazineYearNumber">
+        </div>
+        <div>
+            <label for="">Strony</label>
+            <input type="text" id="magazinePages">
+        </div>
+        <div class="noalign">
+            <button onclick="addMagazine()">Akceptuj i dodaj</button>
+            <button onclick="addCancel()">Anuluj</button>
+        </div>
+        <div class="disp_erro" id="mag_erro"></div>
     </div>
 </section>
 <footer>
@@ -78,6 +146,7 @@
     let addMessage;
     let terms = [];
     let f_terms = [];
+    let req = [];
     const padLeadingZeros = (num, size) => {
         var s = num+"";
         while (s.length < size) s = "0" + s;
@@ -188,26 +257,93 @@
             $('#sendRequest').html('Możesz wybrać maksymalnie 4 godziny z listy dostępnych!')
         }
     };
-    $('#dselect').on('change', () => {
-        $('#hselect').show();
-        $('#hselect_aria').show();
-        let i = $('#dselect').children("option:selected").val()
-        let t = getDateHours(f_terms[i].date);
-        t.sort((a,b) => a.date - b.date);
-        $('#hselect').html('');
-        t.forEach((v,k) => {
-            $('#hselect').append(`
-                <option value="${v.id}">${padLeadingZeros(v.date.getHours(),2)}:${padLeadingZeros(v.date.getMinutes(),2)}</option>
+    const showAddBook = () => {
+        $('#book').show();
+        $('#magazine').hide();
+        $('#enrollment_select_object').hide();
+    }
+    const showAddMagazine = () => {
+        $('#magazine').show();
+        $('#book').hide();
+        $('#enrollment_select_object').hide();
+    }
+    const addCancel = () => {
+        $('#magazine').hide();
+        $('#book').hide();
+        $('#enrollment_select_object').show();
+    }
+    const updateOrderList = () => {
+        $('#orderlist').html('');
+        req.forEach((v,i) => {
+            $('#orderlist').append(`
+                <li>${v}<button onclick="deleteItem(${i})">Usuń</button></li>
             `);
         });
-
-    })
+    }
+    const deleteItem = (k) => {
+        let t = [];
+        for(let i = 0; i<req.length; i++) {
+            if(i!=k) {
+                t.push(req[i]);
+            }
+        }
+        req = t;
+        updateOrderList();
+    }
+    const addBook = () => {
+        $('#boo_erro').html('');
+        let title = $('#bookTitle').val();
+        let author = $('#bookAuthor').val() || "nie podano";
+        let signature = $('#bookSignature').val() || "nie podano";
+        let chapter = $('#bookChapter').val() || "nie podano";
+        let pages = $('#bookPages').val();
+        if(title.length>0) {
+            if(pages.length>0) {
+                req.push(`<span><b>Książka:</b> ${title}, <b>Autorstwa</b>: ${author}, <b>Sygnatura</b>: ${signature}, <b>Wybrany rozdział</b>: ${chapter}, <b>Zakres stron</b>: ${pages}</span>`);
+                updateOrderList();
+                $('#bookTitle').val("");
+                $('#bookAuthor').val('');
+                $('#bookSignature').val('');
+                $('#bookChapter').val('');
+                $('#bookPages').val('');
+            } else {
+                $('#boo_erro').html("Podaj zakres stron!");
+            }
+        } else {
+            $('#boo_erro').html("Podaj tytuł książki!");
+        }
+    }
+    const addMagazine = () => {
+        $('#boo_erro').html('');
+        let title = $('#magazineTitle').val();
+        let author = $('#magazineAuthor').val() || "nie podano";
+        let signature = $('#magazineSignature').val() || "nie podano";
+        let chapter = $('#magazine').val() || "nie podano";
+        let pages = $('#magazinePages').val();
+        if(title.length>0) {
+            if(pages.length>0) {
+                req.push(`<span><b>Czasopismo:</b> ${title}, <b>Autorstwa</b>: ${author}, <b>Tytuł artykułu:</b> ${}, <b>Sygnatura</b>: ${signature}, <b>Wybrany rozdział</b>: ${chapter}, <b>Zakres stron</b>: ${pages}</span>`);
+                updateOrderList();
+                $('#bookTitle').val("");
+                $('#bookAuthor').val('');
+                $('#bookSignature').val('');
+                $('#bookChapter').val('');
+                $('#bookPages').val('');
+            } else {
+                $('#boo_erro').html("Podaj zakres stron!");
+            }
+        } else {
+            $('#boo_erro').html("Podaj tytuł książki!");
+        }
+    }
     // initialization
-    $('#enrollment_select_object').hide();
+    //$('#enrollment_select_object').hide();
     $('#enrollment_choose_deadline').hide();
     $('#hselect').hide();
     $('#hselect_aria').hide();
     $('#request_result').hide();
+    $('#book').hide();
+    $('#magazine').hide();
 
 
 </script>

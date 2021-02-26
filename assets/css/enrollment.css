@@ -10,7 +10,7 @@
 .enrollment_view {
     padding: 12px;
     border: 1px solid rgba(0,0,0,.4);
-    width: 400px;
+    width: 480px;
 }
 
 .enrollment_view {
@@ -30,21 +30,34 @@
 
 .enrollment_view input,textarea {
     font-size: .93em;
-    width: 100%;
+    width: 80%;
 }
 
 .enrollment_view textarea {
     resize: none;
 }
 
-.enrollment_view small {
-    max-width: 300px;
-}
-
 .enrollment_view h3 {
     margin: 0 0 6px;
     padding: 0;
-    font-size: 2em;
+    font-size: 1em;
+}
+
+.target_step {
+    color: crimson;
+}
+
+.enrollment_view small {
+    margin: 0 0 6px;
+    padding: 0;
+    font-size: .9em;
+}
+
+.enrollment_view p {
+    margin: 0 0 6px;
+    padding: 0;
+    font-size: .9em;
+    color: brown;
 }
 
 .enrollment_view .error {
@@ -79,4 +92,77 @@
 .ctrlaria {
     color: darkcyan;
     font-weight: 900;
+}
+
+.enrollment_view .group {
+    padding: 12px;
+}
+
+.enrollment_view .group small {
+    color: darkcyan;
+}
+
+.object_view {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-flow: column wrap;
+}
+
+.object_view input {
+    width: 80%;
+}
+
+#book,#magazine {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column wrap;
+    width: 400px;
+    padding: 12px;
+    border: 1px solid rgba(0,0,0,.3);
+    border-radius: 13px;
+}
+
+#book div,#magazine div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+}
+
+#magazine div button{
+ width: 50%;
+    margin: 0 2px 0 2px;
+}
+
+#book div button{
+    width: 50%;
+    margin: 0 2px 0 2px;
+}
+
+#book *,#magazine * {
+    margin-bottom: 3px;
+}
+
+#book p, #magazine p {
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.disp_erro {
+    padding: 5px;
+    color: crimson;
+}
+
+#orderlist {
+    font-size: 15px;
+    margin: 0 0 10px;
+}
+
+#orderlist li {
+    list-style: decimal;
+    margin: 0;
+    padding: 0;
+
 }

@@ -4,7 +4,7 @@
     require_once "sendMail.php";
     require_once "config.php";
 
-    if(isset($_POST['deadlines'])&&isset($_POST['email'])) {
+    if(isset($_POST['deadlines'])&&isset($_POST['email'])&&!empty(trim($_POST['email']))&&!empty(trim($_POST['deadlines']))) {
         $posted_deadlines = $_POST['deadlines'];
         // get available deadlines
         $avaliable_deadlines = [];
