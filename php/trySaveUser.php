@@ -4,6 +4,18 @@
     require_once "sendMail.php";
     require_once "config.php";
 
+    session_start();
+
+    if(isset($_SESSION['flood_protect'])) {
+        if($_SESSION['flood_protect']==true) {
+            echo json_encode([
+                'status' => false,
+                'info' => "Poczekaj na przetworzenie żądania..."
+            ]);
+            exit();
+        }
+    }
+
     if(isset($_POST['deadlines'])&&isset($_POST['email'])&&!empty(trim($_POST['email']))&&!empty($_POST['deadlines'])&&isset($_POST['materials'])) {
         $posted_deadlines = $_POST['deadlines'];
         // get available deadlines
@@ -114,7 +126,6 @@
                                     }
 
                                     if ($hourLimit) {
-                                        // save user - corrected, because old version, make multple records when request are strong
                                         $canAdd = false;
                                         for ($i = 0; $i < count($posted_deadlines); $i++) {
                                             $sql = "SELECT count(*) as cnt FROM saved_users WHERE os_id = (select os_id from students where email = ?) AND deadline_id = ?";
@@ -139,38 +150,25 @@
                                         }
 
                                         if ($canAdd) {
+
+                                            $_SESSION['flood_protect'] = true;
+
                                             //WHEN (SELECT count(*) FROM saved_users WHERE os_id = (select os_id from students where email = ?) AND deadline_id = ?) = 0
-                                            $canSendMail = true;
+                                            $canSendMail = false;
                                             $hash = md5(rand(0, 1000)); // in future, add rand + os_id
                                             for ($i = 0; $i < count($posted_deadlines); $i++) {
-                                                $sql = "INSERT INTO saved_users (deadline_id, os_id, hash, materials) VALUES (?,(select os_id from students where email = ?),?,?) WHEN (SELECT count(*) FROM saved_users WHERE os_id = (select os_id from students where email = ?) AND deadline_id = ?) = 0";
+                                                $sql = "INSERT INTO saved_users (deadline_id, os_id, hash, materials) VALUES (?,?,?,?)";
                                                 if($stmt=$link->prepare($sql)) {
                                                     $deadline_id = intval($posted_deadlines[$i]);
                                                     $materials = $_POST['materials'];
-                                                    $stmt->bind_param('issssi', $deadline_id,$param_email, $hash, $materials, $param_email, $deadline_id);
-                                                    if(!$stmt->execute()) {
+                                                    $stmt->bind_param('iiss', $deadline_id,$user_id, $hash, $materials);
+                                                    if($stmt->execute()) {
+                                                        $canSendMail = true;
+                                                    } else {
                                                         $canSendMail = false;
                                                         break;
                                                     }
                                                 }
-                                            }
-                                            // check is exist
-                                            for ($i = 0; $i < count($posted_deadlines); $i++) {
-                                                 $sql = "SELECT count(*) FROM saved_users WHERE deadline_id=? AND os_id=?";
-                                                 if($stmt=$link->prepare($sql)) {
-                                                     $deadline_id = intval($posted_deadlines[$i]);
-                                                     $stmt->bind_param('ii', $deadline_id, $user_id);
-                                                     if($stmt->execute()) {
-                                                         $stmt->store_result();
-                                                         if($stmt->num_rows==0) { // to nie sprawdza
-                                                             $canSendMail = false;
-                                                             echo "not exist!";
-                                                         } elseif($stmt->num_rows>1) {
-                                                             $canSendMail = false;
-                                                             echo "flood!";
-                                                         }
-                                                     }
-                                                 }
                                             }
                                             if($canSendMail) {
                                                 $message = "<a href='" . WEBSITE_URL . "/verify.php?hash=" . $hash . "&os_id=" . $user_id . "'>Kliknij by zweryfikować rezerwację termiu/terminów</a>";
@@ -179,11 +177,13 @@
                                                     'status' => true,
                                                     'info' => "Na uczelniany adres email została wysłana wiadomość aktywacyjna. W celu potwierdzenia rezerwacji terminu/terminów, kliknij w link w wiadomości weryfikacyjnej. Pamiętaj by jak najszybciej zweryfikować terminy, póki nie będą aktywne, ktoś może je zarezerwować wcześniej!"
                                                 ]);
+                                                $_SESSION['flood_protect'] = false;
                                             } else {
                                                 echo json_encode([
                                                     'status' => false,
                                                     'info' => "Ups... coś poszło nie tak, zgłoś ten problem na adres <a href='mailto:tomasz.mizak@wpia.uni.lodz.pl'>tomasz.mizak@wpia.uni.lodz.pl</a>"
                                                 ]);
+                                                $_SESSION['flood_protect'] = false;
                                             }
                                         } else {
                                             echo json_encode([
@@ -234,5 +234,4 @@
         ]);
     }
     $link->close();
-
 ?>

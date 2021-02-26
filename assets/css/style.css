@@ -113,3 +113,42 @@ footer ul, li {
 footer ul {
     margin-left: 60px;
 }
+
+@media only screen and (max-width: 620px) {
+    header {
+        font-size: .7em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    header h4 {
+        display: none;
+    }
+    section {
+        font-size: .8em;
+    }
+    footer {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-flow: column wrap;
+    }
+    footer ul {
+        width: 100%;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-flow: column wrap;
+        margin-bottom: 3px;
+    }
+    footer li {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+}
