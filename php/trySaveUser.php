@@ -4,7 +4,7 @@
     require_once "sendMail.php";
     require_once "config.php";
 
-    if(isset($_POST['deadlines'])&&isset($_POST['email'])&&!empty(trim($_POST['email']))&&!empty(trim($_POST['deadlines']))) {
+    if(isset($_POST['deadlines'])&&isset($_POST['email'])&&!empty(trim($_POST['email']))&&!empty($_POST['deadlines'])&&isset($_POST['materials'])) {
         $posted_deadlines = $_POST['deadlines'];
         // get available deadlines
         $avaliable_deadlines = [];
@@ -114,30 +114,77 @@
                                     }
 
                                     if ($hourLimit) {
-
-                                        // save user
-                                        $added = true;
-                                        $hash = md5(rand(0, 1000));
-                                        // add rand(0,1000) + os_id -> fetch from database;
+                                        // save user - corrected, because old version, make multple records when request are strong
+                                        $canAdd = false;
                                         for ($i = 0; $i < count($posted_deadlines); $i++) {
-                                            $sql = "INSERT INTO saved_users (deadline_id, os_id, hash) VALUES (?,(select os_id from students where email = ?),?)";
-                                            $deadline_id = intval($posted_deadlines[$i]);
-                                            if ($stmt->prepare($sql)) {
-                                                $stmt->bind_param('iss', $deadline_id, $email, $hash);
-                                                if (!$stmt->execute()) {
-                                                    $added = false;
-                                                    break;
+                                            $sql = "SELECT count(*) as cnt FROM saved_users WHERE os_id = (select os_id from students where email = ?) AND deadline_id = ?";
+                                            if($stmt=$link->prepare($sql)) {
+                                                $deadline_id = intval($posted_deadlines[$i]);
+                                                $stmt->bind_param('si', $param_email, $deadline_id);
+                                                if($stmt->execute()) {
+                                                    $stmt->store_result();
+                                                    if($stmt->num_rows>0) {
+                                                        $stmt->bind_result($cnt);
+                                                        $stmt->fetch();
+                                                        if(intval($cnt)==0) {
+                                                            $canAdd = true;
+                                                        } else {
+                                                            $canAdd = false;
+                                                            break;
+                                                        }
+                                                    }
+
                                                 }
                                             }
                                         }
 
-                                        if ($added) {
-                                            $message = "<a href='" . WEBSITE_URL . "/verify.php?hash=" . $hash . "&os_id=" . $user_id . "'>Kliknij by zweryfikować rezerwację termiu/terminów</a>";
-                                            sendMail($email, "Weryfikacja zapisu na termin", $message);
-                                            echo json_encode([
-                                                'status' => true,
-                                                'info' => "Na uczelniany adres email została wysłana wiadomość aktywacyjna. W celu potwierdzenia rezerwacji terminu/terminów, kliknij w link w wiadomości weryfikacyjnej. Pamiętaj by jak najszybciej zweryfikować terminy, póki nie będą aktywne, ktoś może je zarezerwować wcześniej!"
-                                            ]);
+                                        if ($canAdd) {
+                                            //WHEN (SELECT count(*) FROM saved_users WHERE os_id = (select os_id from students where email = ?) AND deadline_id = ?) = 0
+                                            $canSendMail = true;
+                                            $hash = md5(rand(0, 1000)); // in future, add rand + os_id
+                                            for ($i = 0; $i < count($posted_deadlines); $i++) {
+                                                $sql = "INSERT INTO saved_users (deadline_id, os_id, hash, materials) VALUES (?,(select os_id from students where email = ?),?,?) WHEN (SELECT count(*) FROM saved_users WHERE os_id = (select os_id from students where email = ?) AND deadline_id = ?) = 0";
+                                                if($stmt=$link->prepare($sql)) {
+                                                    $deadline_id = intval($posted_deadlines[$i]);
+                                                    $materials = $_POST['materials'];
+                                                    $stmt->bind_param('issssi', $deadline_id,$param_email, $hash, $materials, $param_email, $deadline_id);
+                                                    if(!$stmt->execute()) {
+                                                        $canSendMail = false;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            // check is exist
+                                            for ($i = 0; $i < count($posted_deadlines); $i++) {
+                                                 $sql = "SELECT count(*) FROM saved_users WHERE deadline_id=? AND os_id=?";
+                                                 if($stmt=$link->prepare($sql)) {
+                                                     $deadline_id = intval($posted_deadlines[$i]);
+                                                     $stmt->bind_param('ii', $deadline_id, $user_id);
+                                                     if($stmt->execute()) {
+                                                         $stmt->store_result();
+                                                         if($stmt->num_rows==0) { // to nie sprawdza
+                                                             $canSendMail = false;
+                                                             echo "not exist!";
+                                                         } elseif($stmt->num_rows>1) {
+                                                             $canSendMail = false;
+                                                             echo "flood!";
+                                                         }
+                                                     }
+                                                 }
+                                            }
+                                            if($canSendMail) {
+                                                $message = "<a href='" . WEBSITE_URL . "/verify.php?hash=" . $hash . "&os_id=" . $user_id . "'>Kliknij by zweryfikować rezerwację termiu/terminów</a>";
+                                                sendMail($email, "Weryfikacja zapisu na termin", $message);
+                                                echo json_encode([
+                                                    'status' => true,
+                                                    'info' => "Na uczelniany adres email została wysłana wiadomość aktywacyjna. W celu potwierdzenia rezerwacji terminu/terminów, kliknij w link w wiadomości weryfikacyjnej. Pamiętaj by jak najszybciej zweryfikować terminy, póki nie będą aktywne, ktoś może je zarezerwować wcześniej!"
+                                                ]);
+                                            } else {
+                                                echo json_encode([
+                                                    'status' => false,
+                                                    'info' => "Ups... coś poszło nie tak, zgłoś ten problem na adres <a href='mailto:tomasz.mizak@wpia.uni.lodz.pl'>tomasz.mizak@wpia.uni.lodz.pl</a>"
+                                                ]);
+                                            }
                                         } else {
                                             echo json_encode([
                                                 'status' => false,

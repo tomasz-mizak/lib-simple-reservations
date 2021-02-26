@@ -249,3 +249,12 @@
     background: whitesmoke;
     color: black;
 }
+
+#students-container .material-aligner {
+    display: flex;
+    flex-flow: column wrap;
+}
+
+#students-container .material-aligner span::before {
+    content: '- ';
+}

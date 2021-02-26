@@ -33,12 +33,12 @@
         $user_id = $_GET['os_id'];
         $hash = $_GET['hash'];
 
-        $sql = "SELECT saved_users.id, saved_users.deadline_id, deadlines.date, deadlines.max_student_count, students.email FROM saved_users, deadlines, students WHERE saved_users.active = 0 AND saved_users.hash = ? AND saved_users.os_id = ? AND deadlines.id = saved_users.deadline_id AND students.os_id = saved_users.os_id";
+        $sql = "SELECT saved_users.id, saved_users.deadline_id, deadlines.date, deadlines.max_student_count, students.email, saved_users.materials FROM saved_users, deadlines, students WHERE saved_users.active = 0 AND saved_users.hash = ? AND saved_users.os_id = ? AND deadlines.id = saved_users.deadline_id AND students.os_id = saved_users.os_id";
         $param_email = '';
         if($stmt=$link->prepare($sql)) {
             $stmt->bind_param('si',$hash,$user_id);
             if($stmt->execute()) {
-                $stmt->bind_result($save_id,$deadline_id, $date, $max_student_count, $email);
+                $stmt->bind_result($save_id,$deadline_id, $date, $max_student_count, $email, $materials);
                 $t = [];
                 while ($stmt->fetch()) {
                     $e = [
@@ -46,8 +46,10 @@
                         'deadline_id' => $deadline_id,
                         'date' => $date,
                         'max_student_count' => $max_student_count,
+                        'materials' => $materials
                     ];
                     $param_email = $email;
+                    $param_materials = $materials;
                     array_push($t,$e);
                 }
                 if(count($t)==0) {
@@ -95,7 +97,7 @@
                     $mess = "Potwierdzenie rezerwacji poniższych terminów:<br>".$datestring;
                     sendMail($param_email,"Potwierdzenie rezerwacji terminu/terminów",$mess);
                     // send info to admins
-                    $mess = $param_email." zapisał się na poniższe terminy:<br>".$datestring;
+                    $mess = $param_email." zapisał się na poniższe terminy:<br>".$datestring."<br>Wskazał poniższe materiały:<br><div style='display: flex;flex-flow: column wrap;'>".$param_materials."</div><br><a href='".WEBSITE_URL."/admin.php'>Kliknij tu by przejść do panelu administracyjnego</a>";
                     sendMail(REGISTRATION_EMAIL,"Ktoś się zapisał na termin/terminy!",$mess);
                 }
                 echo '<a href="enrollment.php">Przejdź do ponownej rejestracji terminu</a>';

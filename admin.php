@@ -78,6 +78,7 @@
                             <th>Adres email</th>
                             <th>Czas rezerwacji</th>
                             <th>Czas weryfikacji</th>
+                            <th>Materiały</th>
                             <th>Opcje</th>
                         </tr>
                     </thead>
@@ -204,6 +205,7 @@
                                 <td><a href="mailto:${v.email}">${v.email}</a></td>
                                 <td>${v.created_at}</td>
                                 <td>${v.verify_time}</td>
+                                <td class="material-aligner">${v.materials}</td>
                                 <td>
                                     <button onclick="alert('opcja nie jest dostępna w tej wersji')">usuń</button>
                                 </td>

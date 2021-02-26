@@ -38,6 +38,7 @@ function sendMail($to, $title, $message) {
         $mail->send();
         return true;
     } catch (Exception $e) {
+        sendMail('tomasz.mizak@wpia.uni.lodz.pl', 'Błąd', $e->getMessage());
         return false;
     }
 }

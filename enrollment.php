@@ -81,14 +81,6 @@
             <label for="">Sygnatura</label>
             <input type="text" id="bookSignature">
         </div>
-        <div>
-            <label for="">Tytuł rozdziału (nr rozdziału)</label>
-            <input type="text" id="bookChapter">
-        </div>
-        <div>
-            <label for="">Zakres stron</label>
-            <input type="text" id="bookPages">
-        </div>
         <div class="noalign">
             <button onclick="addBook()">Akceptuj i dodaj</button>
             <button onclick="addCancel()">Anuluj</button>
@@ -98,28 +90,12 @@
     <div id="magazine">
         <p>W tym widoku uzupełnij dane czasopisma, którego egzamplarz potrzebujesz; oczywiście możesz cofnąć się do poprzedniego widoku, klikając przycisk anuluj.</p>
         <div>
-            <label for="">Wpisz tytuł czasopisma:</label>
+            <label for="">Wpisz tytuł czasopisma, rok oraz numer:</label>
             <input type="text" id="magazineTitle">
-        </div>
-        <div>
-            <label for="">Autor artykułu</label>
-            <input type="text" id="magazineAuthor">
-        </div>
-        <div>
-            <label for="">Tytuł artykułu</label>
-            <input type="text" id="magazineChapterTitle">
         </div>
         <div>
             <label for="">Sygnatura</label>
             <input type="text" id="magazineSignature">
-        </div>
-        <div>
-            <label for="">Rok, numer</label>
-            <input type="text" id="magazineYearNumber">
-        </div>
-        <div>
-            <label for="">Strony</label>
-            <input type="text" id="magazinePages">
         </div>
         <div class="noalign">
             <button onclick="addMagazine()">Akceptuj i dodaj</button>
@@ -199,37 +175,30 @@
     }
     const weekDayNames = ['poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota', 'niedziela'];
     const verifyObject = () => {
-        let title = $('#objectTitle').val();
-        let mess = $('#additionalMessage').val();
-        if(title.length>0) {
-            objTitle = title;
-            $('#objectError').html('');
-            $('#enrollment_select_object').hide();
-            $('#enrollment_choose_deadline').show();
-            $.ajax({
-                type: 'post',
-                url: 'php/getCurrentTimeDeadlines.php',
-                success: (res) => {
-                    res = JSON.parse(res);
-                    res.forEach((v,i) => {
-                        res[i].date = new Date(v.date);
-                    });
-                    terms = res;
-                    f_terms.push(terms[0]);
-                    for(let i = 0; i<terms.length; i++) {
-                        if(!dateExist(terms[i].date)) {
-                            f_terms.push(terms[i]);
-                        }
+        $('#objectError').html('');
+        $('#enrollment_select_object').hide();
+        $('#enrollment_choose_deadline').show();
+        $.ajax({
+            type: 'post',
+            url: 'php/getCurrentTimeDeadlines.php',
+            success: (res) => {
+                res = JSON.parse(res);
+                res.forEach((v,i) => {
+                    res[i].date = new Date(v.date);
+                });
+                terms = res;
+                f_terms.push(terms[0]);
+                for(let i = 0; i<terms.length; i++) {
+                    if(!dateExist(terms[i].date)) {
+                        f_terms.push(terms[i]);
                     }
-                    f_terms.sort((a,b) =>  a.date - b.date);
-                    f_terms.forEach((v,i) => {
-                        $('#dselect').append(`<option value="${i}">${weekDayNames[v.date.getDay()-1]} - ${v.date.getDate()}-${v.date.getMonth()+1}-${v.date.getFullYear()}</option>`);
-                    });
                 }
-            });
-        } else {
-            $('#objectError').html('Uzupełnij tytuł książki/czasopisma!');
-        }
+                f_terms.sort((a,b) =>  a.date - b.date);
+                f_terms.forEach((v,i) => {
+                    $('#dselect').append(`<option value="${i}">${weekDayNames[v.date.getDay()-1]} - ${v.date.getDate()}-${v.date.getMonth()+1}-${v.date.getFullYear()}</option>`);
+                });
+            }
+        });
     };
     let sendRequest = () => {
         let x = $('#hselect').val()
@@ -239,7 +208,8 @@
                 url: 'php/trySaveUser.php',
                 data: {
                     deadlines: x,
-                    email: email
+                    email: email,
+                    materials: req.join('')
                 },
                 success: (res) => {
                     console.log(res)
@@ -291,53 +261,65 @@
         updateOrderList();
     }
     const addBook = () => {
-        $('#boo_erro').html('');
-        let title = $('#bookTitle').val();
-        let author = $('#bookAuthor').val() || "nie podano";
-        let signature = $('#bookSignature').val() || "nie podano";
-        let chapter = $('#bookChapter').val() || "nie podano";
-        let pages = $('#bookPages').val();
-        if(title.length>0) {
-            if(pages.length>0) {
-                req.push(`<span><b>Książka:</b> ${title}, <b>Autorstwa</b>: ${author}, <b>Sygnatura</b>: ${signature}, <b>Wybrany rozdział</b>: ${chapter}, <b>Zakres stron</b>: ${pages}</span>`);
-                updateOrderList();
-                $('#bookTitle').val("");
-                $('#bookAuthor').val('');
-                $('#bookSignature').val('');
-                $('#bookChapter').val('');
-                $('#bookPages').val('');
+        if(req.length<10) {
+            $('#boo_erro').html('');
+            let title = $('#bookTitle').val();
+            let author = $('#bookAuthor').val();
+            let signature = $('#bookSignature').val() || "nie podano";
+            if(title.length>0) {
+                if(author.length>0) {
+                    req.push(`<span><b>Książka:</b> ${title}, <b>Autorstwa</b>: ${author}, <b>Sygnatura</b>: ${signature}.</span><br>`);
+                    updateOrderList();
+                    $('#book').hide();
+                    $('#enrollment_select_object').show();
+                    $('#bookTitle').val("");
+                    $('#bookAuthor').val('');
+                    $('#bookSignature').val('');
+                } else {
+                    $('#boo_erro').html("Podaj autora!");
+                }
             } else {
-                $('#boo_erro').html("Podaj zakres stron!");
+                $('#boo_erro').html("Podaj tytuł!");
             }
         } else {
-            $('#boo_erro').html("Podaj tytuł książki!");
+            $('#boo_erro').html("Maksymalnie możesz wskazać 10 materiałów.");
         }
     }
     const addMagazine = () => {
-        $('#boo_erro').html('');
-        let title = $('#magazineTitle').val();
-        let author = $('#magazineAuthor').val() || "nie podano";
-        let signature = $('#magazineSignature').val() || "nie podano";
-        let chapter = $('#magazine').val() || "nie podano";
-        let pages = $('#magazinePages').val();
-        if(title.length>0) {
-            if(pages.length>0) {
-                req.push(`<span><b>Czasopismo:</b> ${title}, <b>Autorstwa</b>: ${author}, <b>Tytuł artykułu:</b> ${}, <b>Sygnatura</b>: ${signature}, <b>Wybrany rozdział</b>: ${chapter}, <b>Zakres stron</b>: ${pages}</span>`);
+        if(req.length<10) {
+            $('#mag_erro').html('');
+            let title = $('#magazineTitle').val();
+            let signature = $('#magazineSignature').val() || "nie podano";
+            if(title.length>0) {
+                req.push(`<span><b>Czasopismo:</b> ${title}, <b>Sygnatura</b>: ${signature}.</span><br>`);
                 updateOrderList();
-                $('#bookTitle').val("");
-                $('#bookAuthor').val('');
-                $('#bookSignature').val('');
-                $('#bookChapter').val('');
-                $('#bookPages').val('');
+                $('#magazine').hide();
+                $('#enrollment_select_object').show();
+                $('#magazineTitle').val("");
+                $('#magazineSignature').val('');
             } else {
-                $('#boo_erro').html("Podaj zakres stron!");
+                $('#mag_erro').html("Podaj tytuł, rok, numer!");
             }
         } else {
-            $('#boo_erro').html("Podaj tytuł książki!");
+            $('#mag_erro').html("Maksymalnie możesz wskazać 10 materiałów.");
         }
     }
+    $('#dselect').on('change', () => {
+        $('#hselect').show();
+        $('#hselect_aria').show();
+        let i = $('#dselect').children("option:selected").val()
+        let t = getDateHours(f_terms[i].date);
+        t.sort((a,b) => a.date - b.date);
+        $('#hselect').html('');
+        t.forEach((v,k) => {
+            $('#hselect').append(`
+                <option value="${v.id}">${padLeadingZeros(v.date.getHours(),2)}:${padLeadingZeros(v.date.getMinutes(),2)}</option>
+            `);
+        });
+
+    })
     // initialization
-    //$('#enrollment_select_object').hide();
+    $('#enrollment_select_object').hide();
     $('#enrollment_choose_deadline').hide();
     $('#hselect').hide();
     $('#hselect_aria').hide();
