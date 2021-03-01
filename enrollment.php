@@ -174,6 +174,7 @@
         }
     }
     const weekDayNames = ['niedziela', 'poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota'];
+    // corr
     const verifyObject = () => {
         $('#objectError').html('');
         $('#enrollment_select_object').hide();
