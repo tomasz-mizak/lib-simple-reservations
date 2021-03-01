@@ -173,7 +173,7 @@
             $('#emailAddressError').html('Został podany błędny adres email!')
         }
     }
-    const weekDayNames = ['poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota', 'niedziela'];
+    const weekDayNames = ['niedziela', 'poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota'];
     const verifyObject = () => {
         $('#objectError').html('');
         $('#enrollment_select_object').hide();
@@ -195,7 +195,7 @@
                 }
                 f_terms.sort((a,b) =>  a.date - b.date);
                 f_terms.forEach((v,i) => {
-                    $('#dselect').append(`<option value="${i}">${weekDayNames[v.date.getDate()-1]} - ${v.date.getDate()}-${v.date.getMonth()+1}-${v.date.getFullYear()}</option>`);
+                    $('#dselect').append(`<option value="${i}">${weekDayNames[v.date.getDay()]} - ${v.date.getDate()}-${v.date.getMonth()+1}-${v.date.getFullYear()}</option>`);
                 });
             }
         });
