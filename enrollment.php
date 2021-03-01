@@ -195,7 +195,7 @@
                 }
                 f_terms.sort((a,b) =>  a.date - b.date);
                 f_terms.forEach((v,i) => {
-                    $('#dselect').append(`<option value="${i}">${weekDayNames[v.date.getDay()]} - ${v.date.getDate()}-${v.date.getMonth()+1}-${v.date.getFullYear()}</option>`);
+                    $('#dselect').append(`<option value="${i}">${weekDayNames[v.date.getDate()-1]} - ${v.date.getDate()}-${v.date.getMonth()+1}-${v.date.getFullYear()}</option>`);
                 });
             }
         });
