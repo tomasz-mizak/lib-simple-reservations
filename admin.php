@@ -242,6 +242,22 @@
             return s;
         }
 
+        const loadDayDeadlines_html = (t) => {
+            t.forEach((v,i) => {
+                let d = new Date(v.date);
+                $('#availableDeadlines').append(`
+                    <li>
+                        <div class="deadline">
+                            <div class="deadline_info"><b>Godzina: ${padLeadingZeros(d.getHours(),2)}:${padLeadingZeros(d.getMinutes(),2)}, zapisane osoby: ${v.studentsCount}/${v.max_student_count}</b><br>Stworzony przez: ${v.first_name} ${v.last_name} [${v.author_id}]</div>
+                            <div class="deadline_options">
+                                <button onclick="deleteDeadline(${v.id})">Usuń termin</button>
+                                <button onclick="showStudentsView(${v.id})">Podgląd osób</button>
+                            </div>
+                        </div>
+                    </li>`);
+                });
+        }
+
         const loadDayDeadlines = () => {
             $('#availableDeadlines').html('');
             $.ajax({
@@ -254,25 +270,17 @@
                 },
                 success: (response) => {
                     response = JSON.parse(response);
-                    response.sort((a,b) =>  new Date(a.date) - new Date(b.date));
                     response.forEach((v,i) => {
-                        let d = new Date(v.date);
                         $.ajax({
                             type: 'post',
                             url: 'php/getDeadlineUsers.php',
                             data: { deadline_id: v.id },
                             success: function(resp) {
-                                let registredStudents = JSON.parse(resp);
-                                $('#availableDeadlines').append(`
-                                <li>
-                                    <div class="deadline">
-                                        <div class="deadline_info"><b>Godzina: ${padLeadingZeros(d.getHours(),2)}:${padLeadingZeros(d.getMinutes(),2)}, zapisane osoby: ${registredStudents.length}/${v.max_student_count}</b><br>Stworzony przez: ${v.first_name} ${v.last_name} [${v.author_id}]</div>
-                                        <div class="deadline_options">
-                                            <button onclick="deleteDeadline(${v.id})">Usuń termin</button>
-                                            <button onclick="showStudentsView(${v.id})">Podgląd osób</button>
-                                        </div>
-                                    </div>
-                                </li>`);
+                                resp = JSON.parse(resp);
+                                response[i].studentsCount = resp.length;
+                                if(i==response.length-1) {
+                                    loadDayDeadlines_html(response)
+                                }
                             }
                         });
                     });
