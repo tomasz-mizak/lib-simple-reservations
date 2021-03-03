@@ -8,9 +8,9 @@
     define('PAGE_TITLE', 'System rezerwacji terminów');
     define('PAGE_SUBTITLE', 'Wydział Prawa i Administracji Uniwersytetu Łódzkiego');
 
-    define('WEBSITE_URL', 'https://www.wpia.uni.lodz.pl/forms/lib');
+    define('WEBSITE_URL', 'http://localhost/biblioteka');
 
     define('REGISTRATION_INFO', true);
-    define('REGISTRATION_EMAIL', 'biblioteka@wpia.uni.lodz.pl');
+    define('REGISTRATION_EMAIL', 'tomasz.mizak@wpia.uni.lodz.pl');
 
 ?>

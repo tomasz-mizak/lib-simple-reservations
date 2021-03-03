@@ -66,10 +66,11 @@
 }
 
 .enrollment_view .nbtn {
-    background: whitesmoke;
+    background: indianred;
     border: 0;
     font-size: .9em;
     padding: 6px;
+    color: whitesmoke;
 }
 
 .choose_deadline_view {
@@ -120,8 +121,6 @@
     flex-flow: column wrap;
     width: 400px;
     padding: 12px;
-    border: 1px solid rgba(0,0,0,.3);
-    border-radius: 13px;
 }
 
 #book div,#magazine div {
@@ -202,4 +201,27 @@
     .ctrlaria {
         width: 50%;
     }
+}
+
+.addbtn {
+    background: darkcyan;
+    color: whitesmoke;
+    border: 0;
+    font-size: .9em;
+    padding: 5px;
+}
+
+.sendbtn {
+    background: crimson;
+    color: whitesmoke;
+    border: 0;
+    font-size: .9em;
+    padding: 5px;
+}
+
+.deleteBtn {
+    background: darkslategrey;
+    color: whitesmoke;
+    border: 0;
+    padding: 2px;
 }

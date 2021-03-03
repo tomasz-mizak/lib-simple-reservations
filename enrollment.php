@@ -27,31 +27,16 @@
     <div class="enrollment">
         <h1>Rezerwowanie terminu</h1>
         <div class="enrollment_view" id="enrollment_start">
-            <small><b class="target_step">Podaj email</b> > Uzupełnij informacje > Wybierz termin</small>
+            <small><b class="target_step">Podaj email</b> > Wybierz termin > Dodaj materiały</small>
             <h3>Krok 1/3</h3>
             <label for="emailAddress">Podaj uczelniany adres email</label>
             <input type="text" id="emailAddress">
             <button class="nbtn" onclick="verifyEmailAddress()">Przejdź dalej</button>
             <span class="error" id="emailAddressError"></span>
         </div>
-        <div class="enrollment_view" id="enrollment_select_object">
-            <small>Podaj email > <b class="target_step">Uzupełnij informacje</b> > Wybierz termin</small>
-            <h3>Krok 2/3</h3>
-            <div class="group">
-                <p>Zamówienie materiałów do czytelni - wybierz jakie książki/czasopisma chcesz zamówić (użyj przycisków poniżej).</p>
-                <small>Czytelnicy mogą zamówić maksymalnie 10 egz. materiałów.</small>
-            </div>
-            <ul id="orderlist"></ul>
-            <div class="optgroup">
-                <button onclick="showAddBook()">Dodaj książkę</button>
-                <button onclick="showAddMagazine()">Dodaj czasopismo</button>
-            </div>
-            <span class="error" id="objectError"></span>
-            <button class="nbtn" onclick="verifyObject()">Przejdź do wyboru terminu</button>
-        </div>
         <div class="enrollment_view" id="enrollment_choose_deadline">
-            <small>Podaj email > Uzupełnij informacje > <b class="target_step">Wybierz termin</b></small>
-            <h3>Krok 3/3</h3>
+            <small>Podaj email > <b class="target_step">Wybierz termin</b> > Dodaj materiały </small>
+            <h3>Krok 2/3</h3>
             <label for="">Poniżej wybierz termin z listy dostępnych</label>
             <div class="choose_deadline_view">
                 <select name="" id="dselect">
@@ -62,8 +47,30 @@
                 </select>
                 <small class="ctrlaria" id="hselect_aria">* przytrzymując przycisk CTRL, możesz wybrać kilka godzin na raz, maksymalna ilość rezerwacji na dzień to 4h.</small>
             </div>
-            <button class="nbtn" onclick="sendRequest()">Prześlij rezerwację</button>
+            <div>
+                <button class="nbtn" onclick="gotoStart()">Wróć do początku</button>
+                <button class="nbtn" onclick="gotoMaterials()">Przejdź do wyboru materiałów</button>
+            </div>
             <span class="error" id="sendRequest"></span>
+        </div>
+        <div class="enrollment_view" id="enrollment_select_object">
+            <small>Podaj email > Wybierz termin> <b class="target_step">Dodaj materiały</b></small>
+            <h3>Krok 3/3</h3>
+            <div class="group">
+                <p>Zamówienie materiałów do czytelni - wybierz jakie książki/czasopisma chcesz zamówić (użyj przycisków poniżej).</p>
+                <small>Czytelnicy mogą zamówić maksymalnie 10 egz. materiałów.</small>
+            </div>
+            <ul id="orderlist"></ul>
+            <div class="optgroup">
+                <button onclick="showAddBook()" class="addbtn">Dodaj książkę</button>
+                <button onclick="showAddMagazine()" class="addbtn">Dodaj czasopismo</button>
+            </div>
+            <span class="error" id="objectError"></span>
+            <div>
+                <button class="nbtn" onclick="gobackDeadlineSelect()">Wróc do wyboru terminu</button>
+                <button class="sendbtn" onclick="sendRequest()">Prześlij rezerwację</button>
+            </div>
+            <span class="error" id="sendRequest2"></span>
         </div>
         <div class="enrollment_view" id="request_result"></div>
     </div>
@@ -82,8 +89,8 @@
             <input type="text" id="bookSignature">
         </div>
         <div class="noalign">
-            <button onclick="addBook()">Akceptuj i dodaj</button>
-            <button onclick="addCancel()">Anuluj</button>
+            <button onclick="addBook()" class="addbtn">Akceptuj i dodaj</button>
+            <button onclick="addCancel()" class="addbtn">Anuluj</button>
         </div>
         <div class="disp_erro" id="boo_erro"></div>
     </div>
@@ -98,8 +105,8 @@
             <input type="text" id="magazineSignature">
         </div>
         <div class="noalign">
-            <button onclick="addMagazine()">Akceptuj i dodaj</button>
-            <button onclick="addCancel()">Anuluj</button>
+            <button onclick="addMagazine()" class="addbtn">Akceptuj i dodaj</button>
+            <button onclick="addCancel()" class="addbtn">Anuluj</button>
         </div>
         <div class="disp_erro" id="mag_erro"></div>
     </div>
@@ -150,6 +157,29 @@
         var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
         return regex.test(email);
     }
+    const gotoStart = () => {
+        $('#enrollment_start').show();
+        $('#enrollment_choose_deadline').hide();
+    }
+    const gotoMaterials = () => {
+        let x = $('#hselect').val()
+        if(x.length>=1) {
+            if(x.length<=4) {
+                $('#enrollment_choose_deadline').hide();
+                $('#enrollment_select_object').show();
+            } else {
+                $('#sendRequest').html('Możesz wybrać maksymalnie 4 godziny z listy dostępnych!')
+            }
+        } else {
+            $('#sendRequest').html('Musisz wybrać termin!')
+        }
+        $('#sendRequest2').html('');
+    }
+    const gobackDeadlineSelect = () => {
+        $('#enrollment_select_object').hide();
+        $('#enrollment_choose_deadline').show();
+        $('#sendRequest2').html('');
+    }
     const verifyEmailAddress = () => {
         if(isEmail($('#emailAddress').val())) {
             $.ajax({
@@ -162,8 +192,29 @@
                     res = JSON.parse(res);
                     if(res.status) {
                         $('#enrollment_start').hide();
-                        $('#enrollment_select_object').show();
+                        $('#enrollment_choose_deadline').show();
                         email = $('#emailAddress').val();
+                        $.ajax({
+                            type: 'post',
+                            url: 'php/getCurrentTimeDeadlines.php',
+                            success: (res) => {
+                                res = JSON.parse(res);
+                                res.forEach((v,i) => {
+                                    res[i].date = new Date(v.date);
+                                });
+                                terms = res;
+                                f_terms.push(terms[0]);
+                                for(let i = 0; i<terms.length; i++) {
+                                    if(!dateExist(terms[i].date)) {
+                                        f_terms.push(terms[i]);
+                                    }
+                                }
+                                f_terms.sort((a,b) =>  a.date - b.date);
+                                f_terms.forEach((v,i) => {
+                                    $('#dselect').append(`<option value="${i}">${weekDayNames[v.date.getDay()]} - ${v.date.getDate()}-${v.date.getMonth()+1}-${v.date.getFullYear()}</option>`);
+                                });
+                            }
+                        });
                     } else {
                         $('#emailAddressError').html(res.info)
                     }
@@ -179,54 +230,31 @@
         $('#objectError').html('');
         $('#enrollment_select_object').hide();
         $('#enrollment_choose_deadline').show();
-        $.ajax({
-            type: 'post',
-            url: 'php/getCurrentTimeDeadlines.php',
-            success: (res) => {
-                res = JSON.parse(res);
-                res.forEach((v,i) => {
-                    res[i].date = new Date(v.date);
-                });
-                terms = res;
-                f_terms.push(terms[0]);
-                for(let i = 0; i<terms.length; i++) {
-                    if(!dateExist(terms[i].date)) {
-                        f_terms.push(terms[i]);
-                    }
-                }
-                f_terms.sort((a,b) =>  a.date - b.date);
-                f_terms.forEach((v,i) => {
-                    $('#dselect').append(`<option value="${i}">${weekDayNames[v.date.getDay()]} - ${v.date.getDate()}-${v.date.getMonth()+1}-${v.date.getFullYear()}</option>`);
-                });
-            }
-        });
+
     };
     let sendRequest = () => {
         let x = $('#hselect').val()
-        if(x.length<=4) {
-            $.ajax({
-                type: 'post',
-                url: 'php/trySaveUser.php',
-                data: {
-                    deadlines: x,
-                    email: email,
-                    materials: req.join('')
-                },
-                success: (res) => {
-                    console.log(res)
-                    res = JSON.parse(res);
-                    if(res.status) {
-                        $('#enrollment_choose_deadline').hide();
-                        $('#request_result').show();
-                        $('#request_result').html(res.info);
-                    } else {
-                        $('#sendRequest').html(res.info);
-                    }
+        $.ajax({
+            type: 'post',
+            url: 'php/trySaveUser.php',
+            data: {
+                deadlines: x,
+                email: email,
+                materials: req.join('')
+            },
+            success: (res) => {
+                console.log(res)
+                res = JSON.parse(res);
+                if(res.status) {
+                    $('#enrollment_choose_deadline').hide();
+                    $('#enrollment_select_object').hide();
+                    $('#request_result').show();
+                    $('#request_result').html(res.info);
+                } else {
+                    $('#sendRequest2').html(res.info);
                 }
-            })
-        } else {
-            $('#sendRequest').html('Możesz wybrać maksymalnie 4 godziny z listy dostępnych!')
-        }
+            }
+        })
     };
     const showAddBook = () => {
         $('#book').show();
@@ -247,7 +275,7 @@
         $('#orderlist').html('');
         req.forEach((v,i) => {
             $('#orderlist').append(`
-                <li>${v}<button onclick="deleteItem(${i})">Usuń</button></li>
+                <li>${v}<button onclick="deleteItem(${i})" class="deleteBtn">Usuń</button></li>
             `);
         });
     }
