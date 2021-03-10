@@ -294,18 +294,22 @@
             $('#boo_erro').html('');
             let title = $('#bookTitle').val();
             let author = $('#bookAuthor').val();
-            let signature = $('#bookSignature').val() || "nie podano";
+            let signature = $('#bookSignature').val();
             if(title.length>0) {
-                if(author.length>0) {
-                    req.push(`<span><b>Książka:</b> ${title}, <b>Autorstwa</b>: ${author}, <b>Sygnatura</b>: ${signature}.</span><br>`);
-                    updateOrderList();
-                    $('#book').hide();
-                    $('#enrollment_select_object').show();
-                    $('#bookTitle').val("");
-                    $('#bookAuthor').val('');
-                    $('#bookSignature').val('');
+                if(signature.length>0) {
+                    if(author.length>0) {
+                        req.push(`<span><b>Książka:</b> ${title}, <b>Autorstwa</b>: ${author}, <b>Sygnatura</b>: ${signature}.</span><br>`);
+                        updateOrderList();
+                        $('#book').hide();
+                        $('#enrollment_select_object').show();
+                        $('#bookTitle').val("");
+                        $('#bookAuthor').val('');
+                        $('#bookSignature').val('');
+                    } else {
+                        $('#boo_erro').html("Podaj autora!");
+                    }
                 } else {
-                    $('#boo_erro').html("Podaj autora!");
+                    $('#boo_erro').html("Podaj sygnaturę!");
                 }
             } else {
                 $('#boo_erro').html("Podaj tytuł!");
@@ -318,14 +322,18 @@
         if(req.length<10) {
             $('#mag_erro').html('');
             let title = $('#magazineTitle').val();
-            let signature = $('#magazineSignature').val() || "nie podano";
+            let signature = $('#magazineSignature').val();
             if(title.length>0) {
-                req.push(`<span><b>Czasopismo:</b> ${title}, <b>Sygnatura</b>: ${signature}.</span><br>`);
-                updateOrderList();
-                $('#magazine').hide();
-                $('#enrollment_select_object').show();
-                $('#magazineTitle').val("");
-                $('#magazineSignature').val('');
+                if(signature.length>0) {
+                    req.push(`<span><b>Czasopismo:</b> ${title}, <b>Sygnatura</b>: ${signature}.</span><br>`);
+                    updateOrderList();
+                    $('#magazine').hide();
+                    $('#enrollment_select_object').show();
+                    $('#magazineTitle').val("");
+                    $('#magazineSignature').val('');
+                } else {
+                    $('#mag_erro').html("Podaj sygnaturę!");
+                }
             } else {
                 $('#mag_erro').html("Podaj tytuł, rok, numer!");
             }

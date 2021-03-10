@@ -44,7 +44,7 @@
                                 <th>wt</th>
                                 <th>śr</th>
                                 <th>czw</th>
-                                <th>pn</th>
+                                <th>pt</th>
                                 <th>sob</th>
                                 <th>niedz</th>
                             </tr>
@@ -248,7 +248,7 @@
                 $('#availableDeadlines').append(`
                     <li>
                         <div class="deadline">
-                            <div class="deadline_info"><b>Godzina: ${padLeadingZeros(d.getHours(),2)}:${padLeadingZeros(d.getMinutes(),2)}, zapisane osoby: ${v.studentsCount}/${v.max_student_count}</b><br>Stworzony przez: ${v.first_name} ${v.last_name} [${v.author_id}]</div>
+                            <div class="deadline_info"><b>Godzina: ${padLeadingZeros(d.getHours(),2)}:${padLeadingZeros(d.getMinutes(),2)}, zapisane osoby: <span id="oslimit-${v.id}">ładowanie</span>/${v.max_student_count}</b><br>Stworzony przez: ${v.first_name} ${v.last_name} [${v.author_id}]</div>
                             <div class="deadline_options">
                                 <button onclick="deleteDeadline(${v.id})">Usuń termin</button>
                                 <button onclick="showStudentsView(${v.id})">Podgląd osób</button>
@@ -270,6 +270,7 @@
                 },
                 success: (response) => {
                     response = JSON.parse(response);
+                    loadDayDeadlines_html(response)
                     response.forEach((v,i) => {
                         $.ajax({
                             type: 'post',
@@ -277,10 +278,8 @@
                             data: { deadline_id: v.id },
                             success: function(resp) {
                                 resp = JSON.parse(resp);
-                                response[i].studentsCount = resp.length;
-                                if(i==response.length-1) {
-                                    loadDayDeadlines_html(response)
-                                }
+                                let oslim = resp.length;
+                                $('#oslimit-'+v.id).html(oslim);
                             }
                         });
                     });
