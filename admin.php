@@ -39,15 +39,17 @@
                 <div class="table_wrapper">
                     <table>
                         <thead>
-                            <tr class="header">
-                                <th>pon</th>
+                            <!--<tr class="header">
+                                
+                                                                    <th>pon</th>
                                 <th>wt</th>
                                 <th>śr</th>
                                 <th>czw</th>
                                 <th>pt</th>
                                 <th>sob</th>
                                 <th>niedz</th>
-                            </tr>
+                                   
+                            </tr> -->
                         </thead>
                         <tbody id="calendar_days"></tbody>
                     </table>
@@ -96,7 +98,7 @@
         <ul>
             <li><b>Kontakt</b></li>
             <li><a href="tel:426354625">tel. 42 635 46 25</a></li>
-            <li><a href="mailto:tomasz.mizak@wpia.uni.lodz.pl">tomasz.mizak@wpia.uni.lodz.pl</a></li>
+            <li><a href="mailto:helpdesk@wpia.uni.lodz.pl">helpdesk@wpia.uni.lodz.pl</a></li>
         </ul>
     </footer>
     <div class="create_deadline">
@@ -297,10 +299,18 @@
             selDay = day;
             $('.calendar_view').hide();
             $('.calendar_details').show();
-            $('#selectedDay').html(`${weekDayNames[weekday-1]} - ${selDay}.${currentMonth}.${currentYear}`);
+            const weekDayNames2 = ['niedziela', 'poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota'];
+            let d = new Date(currentYear, currentMonth-1, selDay)
+            $('#selectedDay').html(`${weekDayNames2[d.getDay()]} ${d.getDate()}-${d.getMonth()}-${d.getFullYear()}`);
             $('#availableDeadlines').html('');
             loadDayDeadlines()
         };
+
+        function retraction() {
+            let x = new Date(currentYear, currentMonth);
+            let y = x.getDay()
+            return y;
+        }
 
         const loadDays = async () => {
             $.ajax({
@@ -311,12 +321,21 @@
                     res.forEach((v,i) => { res[i].date = new Date(Date.parse(v.date.replace(/[-]/g,'/'))); });
                     let viewDeadlines = res;
                     $('#calendar_days').html('');
-                    const weeks = Math.ceil(daysInMonth(currentMonth, currentYear) / 7)
+
+                    let r = retraction();
+                    const dim = daysInMonth(currentMonth, currentYear)
+                    const weeks = Math.ceil(dim / 7)
+
+                    console.log(`weeks: ${weeks}`)
+                    console.log(`retraction: ${r}`);
+                    console.log(`days in month + retraction: ${dim}`)
+                    
+
                     for (let i = 1; i <= weeks; i++) {
                         let row = '<tr>';
                         for (let k = 1; k <= 7; k++) {
                             let day = k + ((i - 1) * 7);
-                            if (day > daysInMonth(currentMonth, currentYear)) break;
+                            if (day > dim) break;
                             let is_tagged = false;
                             let is_current = false;
                             for (let index = 1; index <= viewDeadlines.length; index++) {

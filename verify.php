@@ -121,7 +121,7 @@
     <ul>
         <li><b>Kontakt</b></li>
         <li><a href="tel:426354625">tel. 42 635 46 25</a></li>
-        <li><a href="mailto:tomasz.mizak@wpia.uni.lodz.pl">tomasz.mizak@wpia.uni.lodz.pl</a></li>
+        <li><a href="mailto:helpdesk@wpia.uni.lodz.pl">helpdesk@wpia.uni.lodz.pl</a></li>
     </ul>
 </footer>
 <script>
